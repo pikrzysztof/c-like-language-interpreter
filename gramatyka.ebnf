@@ -1,0 +1,21 @@
+ws = ("	" | "
+"| " "), {ws}
+
+(* EXPRESSIONS *)
+complex-coord = ["+" | "-"], digit, {digit}, [".", {digit}]
+const = digit, {digit}, [".", {digit}] | "(", complex-coord, ",", complex-coord, ")" | "true" | "false" | '"', { char }, '"'
+expr = const | identifier, [[expr, [(":" | ".."), expr]]] | identifier, "(", [expr, {",", expr}], ")" | "(", expr, ")" | "#", expr | expr, "^", expr | "-", expr | expr, ("*" | "/"), expr | expr, "mod", expr | expr, ("+"|"-"|"&"), expr | expr, ("==" | "!=" | "<" | "<=" | ">" | ">="), expr | "not", expr | expr, "and", expr | expr, ("or" | "xor"), expr
+
+(* STATEMENTS *)
+block = "{", stmt, {stmt}, "}"
+option = letter, {letter | "-"}
+stmt = ["!"], identifier, "(", [expr, {",", expr}], ")", ";" | identifier, "=", expr, ";" | expr, ("->" | "<-" | "<->"), expr, ";" | "for", identifier, "=", expr, "to", expr, ["step", expr], block | "while", expr, block | block, "until", expr, ";" | "if", expr, block, ["else", block] | "return", expr, ";" | "input", [expr], identifier, ";" | "print", expr, [",", expr], ";" | "exit", [expr], ";" | "measure", expr, [",", identifier], ";" | "reset", ";" | "dump", [expr], ";" | "list", [identifier, {",", identifier}], ";" | ("load" | "save"), [expr], ";" | "shell", ";" | "set", option, ["," expr], ";" | stmt, ";"
+
+(* DEFINITIONS *)
+type = "int" | "real" | "complex" | "string" | "qureg" | "quvoid" | "quconst" | "quscratch"
+const-def = "const", identifier, "=", expr, ";"
+var-def = type, identifier, [expr], ";" | type, identifier, ["=", expr], ";"
+arg-def = type, identifier
+arg-list = "(", [arg-def, {",", arg-def}], ")"
+body = "{", {const-def | var-def} {stmt}, "}"
+def = const-def | var-def | type, identifier, arg-list, body | ("procedure" | "operator" | "qufunct"), identifier, arg-list, body | "extern", ("operator" | "qufunct"), identifier, arg-list, ";"

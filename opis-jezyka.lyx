@@ -1,0 +1,812 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Quantum Computation Language
+\end_layout
+
+\begin_layout Author
+Krzysztof Piecuch, 332534
+\end_layout
+
+\begin_layout Standard
+Poniższy tekst (i przykładowy fragment kodu w QCL) jest zaczerpnięty ze
+ strony języka, tj.
+ http://tph.tuwien.ac.at/~oemer/qcl.html
+\end_layout
+
+\begin_layout Standard
+QCL to wysokopoziomowy język programowania dla komputerów kwantowych, który
+ może być wykonywany na maszynie o dowolnej architekturze.
+ Składnia przypomina składnię popularnych języków proceduralnych (Pascal,
+ C).
+ Ideą jest emulacja kwantowych obliczeń na komputerach o dowolnej architekturze.
+ Jako, że kwantowe obliczenia to dość złożone zgadanienie, to poniższy tekst
+ sporo upraszcza i nie podaje (kompletnych) powodów.
+ Całość jest opisana na w/w stronie, tekst jest tylko przekładem i streszczeniem
+ 
+\begin_inset Quotes eld
+\end_inset
+
+najważniejszych
+\begin_inset Quotes erd
+\end_inset
+
+ pod kątem implementacji faktów z dostępnych tam dokumentów.
+ Nie zamieszczam definicji pojęć i stosowanej notacji, ponieważ jest standardowa
+ dla dziedziny nauki i zamieszczona 
+\begin_inset CommandInset href
+LatexCommand href
+name "tutaj"
+target "http://tph.tuwien.ac.at/~oemer/doc/quprog.pdf"
+
+\end_inset
+
+, a dokument ma być tylko pobieżnym opisem najważniejszych cech języka.
+ Czasami są użyte nieścisłe, niestandardowe pojęcia, jednak w takim przypadku
+ należy posłużyć się intuicją.
+\end_layout
+
+\begin_layout Subsubsection*
+O co chodzi z kwantowymi obliczeniami?
+\end_layout
+
+\begin_layout Standard
+Każdy klasyczny program może zostać zamodelowany jako drzewo decyzyjne,
+ gdzie węzeł odpowiada binarnemu stanowi i ma jedno lub więcej dzieci-stanów.
+ Deterministyczna maszyna Turinga pozwala na tylko jedno przejście między
+ stanami, więc ścieżka obliczeń jest z góry określona.
+ Na probabilistycznej maszynie Turinga przejścia są okreśłone przez prawdopodobi
+eństwa i jedno z możliwych przejść jest wybierane losowo, jednakże dopóki
+ tego nie sprawdzimy, maszyna Turinga znajduje się we wszystkich stanach
+ na tym samym poziomie drzewa jednocześnie (superpozycja).
+ Większość kwantowych algorytmów korzysta z tego posługując się superpozycją
+ kubitów, a po przeszukaniu drzewa sprawdza się wartości kubitów, dzięki
+ czemu (przy pewnych założeniach i ograniczeniach) jesteśmy w stanie stwierdzić,
+ jaka byłaby ścieżka klasycznego algortmu.
+ Operacja sprawdzenia wartości kubitu jest łączna i przemienna, kolejność,
+ w jakich sprawdzamy wartości jest bez znaczenia.
+ Oprócz tego, kwantowe obliczenia są potężniejsze od probabilistycznych
+ dzięki interferencji destruktywnej, która zwiększa prawdopodobieństwo 
+\begin_inset Quotes eld
+\end_inset
+
+dobrych
+\begin_inset Quotes erd
+\end_inset
+
+ stanów i obniża prawdopodobieństwo tych, które są 
+\begin_inset Quotes eld
+\end_inset
+
+mało obiecujące
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Paragraph*
+Stan maszyny i programu Stan programu
+\end_layout
+
+\begin_layout Standard
+Pamięć kwantowego komputera to zazwyczaj kombinacja 2-stanowych podsystemów
+ zwanych bitami kwantowymi (kubitami).
+ Zawartość pamięci to stan wszystki kubitów.
+ W tym przypadku posługujemy się określeniem 
+\begin_inset Quotes eld
+\end_inset
+
+stan maszyny
+\begin_inset Quotes erd
+\end_inset
+
+, zamiast 
+\begin_inset Quotes eld
+\end_inset
+
+stan programu
+\begin_inset Quotes erd
+\end_inset
+
+, który to definiował 
+\begin_inset Quotes eld
+\end_inset
+
+sytuację
+\begin_inset Quotes erd
+\end_inset
+
+ w klasycznych językach programowania.
+\end_layout
+
+\begin_layout Standard
+Stan maszyny 
+\begin_inset Formula $n$
+\end_inset
+
+ kubitowego komputera kwantowego to wektor w przestrzeni Hilberta 
+\begin_inset Formula $H=C^{2^{n}}$
+\end_inset
+
+, jednakże, w związku z destruktywnym działaniem pomiaru (qubit może przyjmować
+ obydwa stany jednocześnie, dopóki się nie sprawdzi jego stanu) nie można
+ bezpośrednio sprawdzić jego wartości i nie jest dostępny z poziomu QCL.
+ Dostępne są jednak funkcje 
+\begin_inset Formula $load$
+\end_inset
+
+, 
+\begin_inset Formula $save$
+\end_inset
+
+, 
+\begin_inset Formula $dump$
+\end_inset
+
+, które służą do wykonywania operacji bez ingerencji w stan maszyny.
+ QCL oddziela klasyczny stan programu i kwantowy stan programu, można w
+ nim tworzyć w pełni klasyczne programy.
+\end_layout
+
+\begin_layout Paragraph*
+Kwantowe rejestry
+\end_layout
+
+\begin_layout Standard
+QCL używa rejestrów kwantowych jako interfejsu, z którego może korzystać
+ użytkownik, żeby zmienić stan maszyny.
+ Kwantowy rejestr dla programisty to 
+\begin_inset Quotes eld
+\end_inset
+
+wskaźnik
+\begin_inset Quotes erd
+\end_inset
+
+ na ciąg parami różnych kubitów, więc jest traktowany jako zwykła zmienna.
+ Wszystkie unitarne operacje, które operują na stanie maszyny oraz sprawdzenie
+ stanu przyjmowały kwantowe rejestry (oprócz 
+\begin_inset Formula $reset$
+\end_inset
+
+) jako argumenty.
+ Jako, że 
+\begin_inset Formula $n$
+\end_inset
+
+-kubitowy komputer kwantowy pozwala na 
+\begin_inset Formula $\frac{n!}{(n-m)!}$
+\end_inset
+
+ różnych 
+\begin_inset Formula $m$
+\end_inset
+
+ kubitowych rejestrów, jakakolwiek operacja lub pomiar może skutkować 
+\begin_inset Formula $\frac{n!}{(n-m)!}$
+\end_inset
+
+ różnym operacjom na stanie maszyny.
+ To wymusza, żeby każda unitarna operacja była wykonalna na pojedynczych
+ kubitach i wymaga fizycznej architektury do pomiaru pojedynczych kubitów.
+\end_layout
+
+\begin_layout Paragraph*
+Kwantowa sterta
+\end_layout
+
+\begin_layout Standard
+Pozwala na alokację i dealokację kubitowych rejestrów.
+ Rozmieszczenie kubitów w rejestrach jest niewidoczne dla użytkownika, dzięki
+ czemu określenie pozycji kubitów nie musi być określane przez użytkownika.
+ Jako, że stan maszyny można opisać stanem wspólny mdwóch niezależnych maszyn
+ - jednej, która ma całą zaalokowaną pamieć a druga całą niezaalokowaną,
+ to definiowane algorytmy kwantowe nie zależą od całkowitej liczby kubitów.
+\end_layout
+
+\begin_layout Paragraph*
+Alokacja rejestrów
+\end_layout
+
+\begin_layout Standard
+Rejestry są alokowane na zasadzie stosu - kubity są wkładane na stos w czasie
+ alokacji i zdejmowane (pamięć jest zwalniana) gdy opuszczamy 
+\begin_inset Quotes eld
+\end_inset
+
+zasięg zmiennej
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Paragraph*
+Tymczasowe rejestry kwantowe
+\end_layout
+
+\begin_layout Standard
+Aby mieć pewność, że nie uszkodzi się struktury kwantowej sterty, należy
+ zapewnić wyczyszczenie rejestru przed jego dealokacją.
+ Funkcje kwantowe pozwalają na deklaracje lokalnych wartości jako tymczasowych,
+ dzięki czemu poprawne zwalnianie pamięci jest przezroczyste dla programisty
+ i jest zapewniane przez specjalny algorytm w interpreterze.
+\end_layout
+
+\begin_layout Paragraph*
+Kwantowe wyrażenia
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="6" columns="3">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+wyrażenie
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+opis
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+rejestr
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $a$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+referencja
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\langle a_{0},a_{1},\cdots,a_{n}\rangle$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $a[i]$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+kubit
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\langle a_{i}\rangle$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $a[i:j]$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+podsłowo
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\langle a_{i},\cdots,a_{j}\rangle$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $a[i\backslash j]$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+podsłowo
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\langle a_{i},\cdots,a_{i+j-1}\rangle$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $a\&b$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+połączenie
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\langle a_{0},\cdots,a_{n},b_{0},\cdots,b_{m}\rangle$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+Kwantowe funkcje (subroutines)
+\end_layout
+
+\begin_layout Standard
+Oprócz podstawowych 
+\begin_inset Formula $procedur$
+\end_inset
+
+ i 
+\begin_inset Formula $funkcji$
+\end_inset
+
+ QCL ma funkcje dla bezstanowych operatorów unitarnych (
+\begin_inset Formula $operator$
+\end_inset
+
+) i pseudo-klasycznych operatorów (
+\begin_inset Formula $qufunct$
+\end_inset
+
+).
+ QCL pozwala na odwracanie operatorów i musi zarządzać pamięcią tymczasową
+ w funkcjach kwantowych, więc określono następujące ograniczenia na efekty
+ uboczne działające na stan programu i kwantowy stan maszyny:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="4">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+typ funkcji
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+stan programu
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+stan maszyny
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+rekursja
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $procedura$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+wszystkie
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+wszystkie
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+tak
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $operator$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+żadne
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+unitarne
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+nie
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $qufunct$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+żadne
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pseudo-klasyczne
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+nie
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $funkcje$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+żadne
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+żadne
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+tak
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Z powyższej tabelki wynika także, że funkcja nie może wołać tylko funkcje
+ tego samego lub niższego rzędu.
+ Matematyczna semantyka 
+\begin_inset Formula $operatorów$
+\end_inset
+
+ i 
+\begin_inset Formula $funkcji$
+\end_inset
+
+ wymaga, żeby wszystkie wywołania były bezstanowe.
+ Stąd stan programu nie może być zmieniany przez te funkcje oraz ich wywołanie
+ nie może zależeć od globalnego stanu programu, który zawiera globalne zmienne,
+ opcje i stan wewnętrznego generatora liczb losowych.
+\end_layout
+
+\begin_layout Paragraph*
+Zewnętrzna edycja stanu maszyny
+\end_layout
+
+\begin_layout Standard
+Język nie może posiadać wbudowanych metod do zmiany stanu maszyny, ponieważ
+ wymagałoby to założeń dotyczących architektury symulowanego komputera kwantoweg
+o.
+ Stąd QCL udostępnia 
+\begin_inset Formula $operator$
+\end_inset
+
+ oraz 
+\begin_inset Formula $qufunct$
+\end_inset
+
+, które poprzedzone słowem 
+\begin_inset Formula $extern$
+\end_inset
+
+ pozwalają na wykonywanie instrukcji poza językiem.
+\end_layout
+
+\end_body
+\end_document

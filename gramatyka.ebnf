@@ -1,27 +1,98 @@
-(* we wszystkich produkcjach oprócz complex-coord i identifier każdy przecinek*)
-(* można zastąpić ', ws, ', jeżeli chcemy uwzględnić gdize mogą, ale nie muszą*)
-(* być białe znaki *)
+-- we wszystkich produkcjach oprócz complex-coord i identifier każdy przecinek
+-- można zastąpić ', ws, ', jeżeli chcemy uwzględnić gdize mogą, ale nie muszą
+-- być białe znaki
 
-ws = {mws}
-mws = ("	" | "
-"| " "), {mws}
+-- EXPRESSIONS
+CComplexCoord.        complex-coord ::= ["+" | "-"] (Double | Integer);
+CJustConst.           const ::=         (Double | Integer);
+CConstComplexPair.    const ::=         "(" complex-coord "," complex-coord ")";
+CBoolTrue.            const ::=         "true";
+CBoolFalse.           const ::=         "false";
+CString.              const ::=         String;
 
-(* EXPRESSIONS *)
-complex-coord = ["+" | "-"], digit, {digit}, [".", {digit}]
-const = digit, {digit}, [".", {digit}] | "(", complex-coord, ",", complex-coord, ")" | "true" | "false" | '"', { char }, '"'
-expr = const | identifier, mws, "[", [expr, [(":" | ".."), expr]], "]" | identifier, "(", [expr, {",", expr}], ")" | "(", expr, ")" | "#", expr | expr, "^", expr, | "-", expr, | expr, ("*" | "/"), expr, | expr, mws, "mod", mws, expr | expr, ("+"|"-"|"&"), expr | expr, ("==" | "!=" | "<" | "<=" | ">" | ">="), expr | "not", mws, expr | expr, mws, "and", mws, expr | expr, mws, ("or" | "xor"), mws, expr
+EConst.               expr ::=          const;
+EFCall.               expr ::=          Ident "(" [expr {"," expr}] ")";        -- wywolanie funkcji
+EBracket.             expr ::=          "(" expr ")";
+ESize.                expr ::=          "#" expr;
+EBinaryOp.            expr ::=          expr binaryOp expr;
+EAdditiveInverse.     expr ::=          "-" expr;
+EBoolNegation         expr ::=          "not" expr;
+EBoolAnd              expr ::=          expr "and" expr;
+EBoolOr               expr ::=          expr "or" expr;
+EBoolXor              expr ::=          expr "xor" expr;
+EMod                  expr ::=          expr "mod" expr;
+ENieWiemJakiesListy   expr ::=          Ident "[" [expr, [tworzenieList expr]] "]";
 
-(* STATEMENTS *)
-block = "{", stmt, {stmt, }, "}"
-option = letter, {letter | "-"}
-stmt = ["!"], identifier, "(", [expr, {",", expr}], ")", ";" | identifier, "=", expr, ";" | expr, ("->" | "<-" | "<->"), expr, ";" | "for", mws, identifier, "=", expr, mws, "to", mws, expr, [mws, "step", mws, expr], block | "while", mws, expr, block | block, "until", mws, expr, ";" | "if", mws, expr, block, ["else", block] | "return", mws, expr, ";" | "input", [mws, expr], mws, identifier, ";" | "print", mws, expr, [",", expr], ";" | "exit", mws, [expr], ";" | "measure", mws, expr, [",", identifier], ";" | "reset", ";" | "dump", [mws, expr], ";" | "list", [mws, identifier, {",", identifier}], ";" | ("load" | "save"), [mws, expr], ";" | "shell", ";" | "set", mws, option, ["," expr], ";" | stmt, ";"
+KonkatenacjaList.     tworzenieList ::= ":";
+ListaNastepnikow.     tworzenieList ::= "..";
 
-(* DEFINITIONS *)
-identifier = letter, {letter}
-type = "int" | "real" | "complex" | "string" | "qureg" | "quvoid" | "quconst" | "quscratch"
-const-def = "const", identifier, "=", expr, ";"
-var-def = type, mws, identifier, [mws, expr], ";" | type, mws, identifier, ["=", expr], ";"
-arg-def = type, mws, identifier
-arg-list = "(", [arg-def, {",", arg-def}], ")"
-body = "{", {const-def | var-def} {stmt}, "}"
-def = const-def | var-def | type, mws, identifier, arg-list, body | ("procedure" | "operator" | "qufunct"), mws, identifier, arg-list, body | "extern", mws, ("operator" | "qufunct"), mws, identifier, arg-list, ";"
+OpPower.              binaryOp ::=      "^";
+OpTimes.              binaryOp ::=      "*";
+OpDivide.             binaryOp ::=      "/";
+OpPlus.               binaryOp ::=      "+";
+OpMinus.              binaryOp ::=      "-";
+OpAnd.                binaryOp ::=      "&";
+OpEq.                 binaryOp ::=      "==";
+OpNeq.                binaryOp ::=      "!=";
+OpL.                  binaryOp ::=      "<";
+OpLEq.                binaryOp ::=      "<=";
+OpG.                  binaryOp ::=      ">";
+OpGEq.                binaryOp ::=      ">=";
+
+
+
+--STATEMENTS
+Block.                block    ::=      "{" stmt {stmt} "}";
+Option.               option   ::=      Char, {Char | "-"};
+FunctionCall.         stmt     ::=      ["!"] Ident "(" [expr {"," expr}] ")" ";"; --! to jest odwrocenie operatora unitarnego, patrz strona 61
+Assignment.           stmt     ::=      Ident "=" expr ";";
+FanoutSugar.          stmt     ::=      expr fanoutSugarOp expr;
+ForLoop               stmt     ::=      "for" Ident "=" expr "to" expr ["step" expr] block;
+WhileLoop             stmt     ::=      "while" expr block;
+UntilLoop             stmt     ::=      block "until" expr ";";
+ConditionalBranch     stmt     ::=      "if" expr block ["else" block];
+ReturnExpr            stmt     ::=      "return" expr ";";
+Input                 stmt     ::=      "input" [expr] Ident ";";
+Print                 stmt     ::=      "print" expr {"," expr} ";";
+Exit                  stmt     ::=      "exit" [expr] ";";
+Measure               stmt     ::=      "measure" expr ["," Ident] ";";
+Reset                 stmt     ::=      "reset" ";";
+List                  stmt     ::=      "list" [Ident, {"," Ident}] ";";
+Dump                  stmt     ::=      "dump" [expr] ";";
+Load                  stmt     ::=      "load" [expr] ";";
+Save                  stmt     ::=      "save" [expr] ";";
+Shell                 stmt     ::=      "shell" ";";
+Set                   stmt     ::=      "set" option ["," expr] ";";
+Stmt                  stmt     ::=      stmt ";";
+
+FanoutRight           fanoutSugarOp ::= "->";              --strona 68
+FanoutLeft            fanoutSugarOp ::= "<-";
+FanoutSwap            fanoutSugarOp ::= "<-";
+
+-- DEFINITIONS
+
+TInt                  type     ::= "int";
+TReal                 type     ::= "real";
+TComplex              type     ::= "complex";
+TString               type     ::= "string";
+TQureg                type     ::= "qureg";
+TQuvoid               type     ::= "quvoid";
+TQuconst              type     ::= "quconst";
+TQuscratch            type     ::= "quscratch";
+
+ConstDef              constdef ::= "const" Ident "=" expr ";";
+
+VarDef                vardef   ::= type Ident ";";
+VarDefAss             vardef   ::= type Ident "=" expr ";";
+VarDefExpr            vardef   ::= type Ident expr ";";
+ArgDef                argdef   ::= type Ident;
+ArgList               arglist  ::= "(" [argdef {"," argdef}] ")";
+Body                  body     ::= "{" {constdef | vardef} {stmt} "}";
+ConstDef              def      ::= constdef;
+VarDef                def      ::= vardef;
+FunDef                def      ::= type Ident arglist body;
+ProcDef               def      ::= "procedure" Ident arglist body;
+OperatorDef           def      ::= "operator" Ident arglist body;
+QufunctDef            def      ::= "qufunct" Ident arglist body;
+ExternOpDef           def      ::= "extern" "operator" Ident arglist ";";
+ExternQufunctDef      def      ::= "extern" "qufunct" Ident  arglist ";";

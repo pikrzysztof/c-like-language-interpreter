@@ -10,34 +10,33 @@ CBoolTrue.            const ::=         "true";
 CBoolFalse.           const ::=         "false";
 CString.              const ::=         String;
 
-EConst.               expr ::=          const;
-EFCall.               expr ::=          Ident "(" [expr {"," expr}] ")";        -- wywolanie funkcji
-EBracket.             expr ::=          "(" expr ")";
-ESize.                expr ::=          "#" expr;
-EBinaryOp.            expr ::=          expr binaryOp expr;
-EAdditiveInverse.     expr ::=          "-" expr;
-EBoolNegation         expr ::=          "not" expr;
-EBoolAnd              expr ::=          expr "and" expr;
-EBoolOr               expr ::=          expr "or" expr;
-EBoolXor              expr ::=          expr "xor" expr;
-EMod                  expr ::=          expr "mod" expr;
-ENieWiemJakiesListy   expr ::=          Ident "[" [expr, [tworzenieList expr]] "]";
+
+EFCall.               expr0 ::=         Ident "(" [expr0 {"," expr0}] ")";        -- wywolanie funkcji
+ENieWiemJakiesListy   expr0 ::=         Ident "[" [expr0, [tworzenieList expr0]] "]";
+EConst.               expr11 ::=        const;
+EEq.                  expr0 ::=         expr0 "==" expr1
+ENeq.                 expr0 ::=         expr0 "!=" expr1;
+ELe                   expr1 ::=         expr1 "<" expr2;
+ELEq                  expr1 ::=         expr1 "<=" expr2;
+EGr                   expr1 ::=         expr1 ">" expr2;
+EGrEq                 expr1 ::=         expr1 ">=" expr2;
+EOr                   expr2 ::=         expr2 "or" expr3;
+EAnd                  expr3 ::=         expr3 "and" expr4;
+EXor                  expr4 ::=         expr4 "xor" expr5;
+ENot                  expr5 ::=         "not" expr6;
+EAdd                  expr6 ::=         expr6 "+" expr7;
+ESubtract             expr6 ::=         expr6 "-" expr7;
+EStringConcat         expr6 ::=         expr6 "&" expr7;
+ETimes                expr7 ::=         expr7 "*" expr8;
+EDiv                  expr7 ::=         expr7 "/" expr8;
+EMod                  expr7 ::=         expr7 "mod" expr8;
+EPow                  expr8 ::=         expr8 "^" expr9;
+EUnaryMinus           expr9 ::=         "-" expr10;
+ESize                 expr10 ::=         "#" expr11;
+_.                    expr10 ::=         "(" expr0 ")";
 
 KonkatenacjaList.     tworzenieList ::= ":";
 ListaNastepnikow.     tworzenieList ::= "..";
-
-OpPower.              binaryOp ::=      "^";
-OpTimes.              binaryOp ::=      "*";
-OpDivide.             binaryOp ::=      "/";
-OpPlus.               binaryOp ::=      "+";
-OpMinus.              binaryOp ::=      "-";
-OpAnd.                binaryOp ::=      "&";
-OpEq.                 binaryOp ::=      "==";
-OpNeq.                binaryOp ::=      "!=";
-OpL.                  binaryOp ::=      "<";
-OpLEq.                binaryOp ::=      "<=";
-OpG.                  binaryOp ::=      ">";
-OpGEq.                binaryOp ::=      ">=";
 
 
 

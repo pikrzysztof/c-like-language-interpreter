@@ -1,94 +1,124 @@
--- EXPRESSIONS
+separator             Ident       ",";
+terminator            Ident       "";
+separator             CharOrMinus "";
+terminator            CharOrMinus "";
+CharM.	              CharOrMinus  ::=	Char;
+MinusM.		      CharOrMinus  ::=	"-";
 
-CComplexCoord.        complexcoord ::=  [ "+" | "-" ] ( Double | Integer );
-CJustConst.           const ::=         ( Double | Integer );
-CConstComplexPair.    const ::=         "(" complexcoord "," complexcoord ")";
-CBoolTrue.            const ::=         "true";
-CBoolFalse.           const ::=         "false";
-CString.              const ::=         String;
+ComplexCoordInt.      ComplexCoord ::=	Integer;
+ComplexCoordDouble.   ComplexCoord ::=	Double;
+CJustConst.	      Const ::=         ComplexCoord;
+CConstComplexPair.    Const ::=         "(" ComplexCoord "," ComplexCoord ")";
+CBoolTrue.            Const ::=         "true";
+CBoolFalse.           Const ::=         "false";
+CString.              Const ::=         String;
+
+separator             Expr0 ",";
+terminator            Expr0 "";
+EFCall.               Expr0 ::=         Ident "(" [Expr0] ")";        -- wywolanie funkcji
+-- ENieWiemJakiesListy   Expr0 ::=         Ident "[" [Expr0, [tworzenieList Expr0]] "]";
+EConst.               Expr11 ::=        Const;
+EEq.                  Expr0 ::=         Expr0 "==" Expr1;
+ENeq.                 Expr0 ::=         Expr0 "!=" Expr1;
+ELe.                  Expr1 ::=         Expr1 "<" Expr2;
+ELEq.                 Expr1 ::=         Expr1 "<=" Expr2;
+EGr.                  Expr1 ::=         Expr1 ">" Expr2;
+EGrEq.                Expr1 ::=         Expr1 ">=" Expr2;
+EOr.                  Expr2 ::=         Expr2 "or" Expr3;
+EAnd.                 Expr3 ::=         Expr3 "and" Expr4;
+EXor.                 Expr4 ::=         Expr4 "xor" Expr5;
+ENot.                 Expr5 ::=         "not" Expr6;
+EAdd.                 Expr6 ::=         Expr6 "+" Expr7;
+ESubtract.            Expr6 ::=         Expr6 "-" Expr7;
+EStringConcat.        Expr6 ::=         Expr6 "&" Expr7;
+ETimes.               Expr7 ::=         Expr7 "*" Expr8;
+EDiv.                 Expr7 ::=         Expr7 "/" Expr8;
+EMod.                 Expr7 ::=         Expr7 "mod" Expr8;
+EPow.                 Expr8 ::=         Expr8 "^" Expr9;
+EUnaryMinus.          Expr9 ::=         "-" Expr10;
+ESize.                Expr10 ::=         "#" Expr11;
+_.                    Expr10 ::=         "(" Expr0 ")";
 
 
-EFCall.               expr0 ::=         Ident "(" [expr0 {"," expr0}] ")";        -- wywolanie funkcji
-ENieWiemJakiesListy   expr0 ::=         Ident "[" [expr0, [tworzenieList expr0]] "]";
-EConst.               expr11 ::=        const;
-EEq.                  expr0 ::=         expr0 "==" expr1;
-ENeq.                 expr0 ::=         expr0 "!=" expr1;
-ELe.                  expr1 ::=         expr1 "<" expr2;
-ELEq.                 expr1 ::=         expr1 "<=" expr2;
-EGr.                  expr1 ::=         expr1 ">" expr2;
-EGrEq.                expr1 ::=         expr1 ">=" expr2;
-EOr.                  expr2 ::=         expr2 "or" expr3;
-EAnd.                 expr3 ::=         expr3 "and" expr4;
-EXor.                 expr4 ::=         expr4 "xor" expr5;
-ENot.                 expr5 ::=         "not" expr6;
-EAdd.                 expr6 ::=         expr6 "+" expr7;
-ESubtract.            expr6 ::=         expr6 "-" expr7;
-EStringConcat.        expr6 ::=         expr6 "&" expr7;
-ETimes.               expr7 ::=         expr7 "*" expr8;
-EDiv.                 expr7 ::=         expr7 "/" expr8;
-EMod.                 expr7 ::=         expr7 "mod" expr8;
-EPow.                 expr8 ::=         expr8 "^" expr9;
-EUnaryMinus.          expr9 ::=         "-" expr10;
-ESize.                expr10 ::=         "#" expr11;
-_.                    expr10 ::=         "(" expr0 ")";
-
-KonkatenacjaList.     tworzenieList ::= ":";
-ListaNastepnikow.     tworzenieList ::= "..";
+-- KonkatenacjaList.     TworzenieList ::= ":";
+-- ListaNastepnikow.     TworzenieList ::= "..";
 
 
 
---STATEMENTS
-Block.                block    ::=      "{" stmt {stmt} "}";
-Option.               option   ::=      Char, {Char | "-"};
-FunctionCall.         stmt     ::=      ["!"] Ident "(" [expr {"," expr}] ")" ";"; --! to jest odwrocenie operatora unitarnego, patrz strona 61
-Assignment.           stmt     ::=      Ident "=" expr ";";
-FanoutSugar.          stmt     ::=      expr fanoutSugarOp expr;
-ForLoop               stmt     ::=      "for" Ident "=" expr "to" expr ["step" expr] block;
-WhileLoop             stmt     ::=      "while" expr block;
-UntilLoop             stmt     ::=      block "until" expr ";";
-ConditionalBranch     stmt     ::=      "if" expr block ["else" block];
-ReturnExpr            stmt     ::=      "return" expr ";";
-Input                 stmt     ::=      "input" [expr] Ident ";";
-Print                 stmt     ::=      "print" expr {"," expr} ";";
-Exit                  stmt     ::=      "exit" [expr] ";";
-Measure               stmt     ::=      "measure" expr ["," Ident] ";";
-Reset                 stmt     ::=      "reset" ";";
-List                  stmt     ::=      "list" [Ident, {"," Ident}] ";";
-Dump                  stmt     ::=      "dump" [expr] ";";
-Load                  stmt     ::=      "load" [expr] ";";
-Save                  stmt     ::=      "save" [expr] ";";
-Shell                 stmt     ::=      "shell" ";";
-Set                   stmt     ::=      "set" option ["," expr] ";";
-Stmt                  stmt     ::=      stmt ";";
+-- --STATEMENTS
 
-FanoutRight           fanoutSugarOp ::= "->";              --strona 68
-FanoutLeft            fanoutSugarOp ::= "<-";
-FanoutSwap            fanoutSugarOp ::= "<-";
+
+JustOption.           Option   ::=      Char [ CharOrMinus ];
+
+separator             Stmt     "";
+terminator            Stmt     "";
+UnitaryOpInvCall.     Stmt     ::=	"!" Ident "(" ")" ";";
+UnitaryOpArgInvCall.  Stmt     ::=	"!" Ident "(" [ Expr0 ] ")" ";";
+Assignment.           Stmt     ::=      Ident "=" Expr0 ";";
+FanoutSugar.          Stmt     ::=      Expr0 FanoutSugarOp Expr0;
+ForLoop.    	      Stmt     ::=      "for" Ident "=" Expr0 "to" Expr0 Block;
+ForStepLoop.	      Stmt     ::= 	"for" Ident "=" Expr0 "to" Expr0 "step" Expr0 Block;
+WhileLoop.	      Stmt     ::=      "while" Expr0 Block;
+UntilLoop.            Stmt     ::=      Block "until" Expr0 ";";
+ConditionalBranch.    Stmt     ::=      "if" Expr0 Block;
+ConditionalBranchElse. Stmt    ::=	"if" Expr0 Block "else" Block;
+ReturnExpr.	      Stmt     ::=      "return" Expr0 ";";
+InputExpr.	      Stmt     ::=	"input" Expr0 Ident ";";
+InputNoExpr.	      Stmt     ::=      "input" Ident ";";
+Print.		      Stmt     ::=      "print" [ Expr0 ] ";";
+Exit.		      Stmt     ::=      "exit" Expr0 ";";
+MeasureNoIdent.	      Stmt     ::=	"measure" Expr0 ";";
+MeasureIdent.	      Stmt     ::=	"measure" Expr0 "," Ident ";";
+Reset.		      Stmt     ::=      "reset" ";";
+List.		      Stmt     ::=      "list" [Ident] ";";
+DumpExpr.	      Stmt     ::=	"dump" Expr0 ";";
+DumpNoExpr.	      Stmt     ::=      "dump" ";";
+LoadExpr.	      Stmt     ::=      "load" Expr0 ";";
+LoadNoExpr.	      Stmt     ::=	"load" ";";
+SaveExpr.	      Stmt     ::=	"save" Expr0 ";";
+SaveNoExpr.	      Stmt     ::=      "save" ";";
+Shell.		      Stmt     ::=      "shell" ";";
+SetExpr.	      Stmt     ::=	"set" Option "," Expr0 ";";
+SetNoExpr.	      Stmt     ::=      "set" Option ";";
+StmtSemicolon.	      Stmt     ::=      Stmt ";";
+
+FanoutRight.	      FanoutSugarOp ::= "->";              --strona 68
+FanoutLeft.	      FanoutSugarOp ::= "<-";
+FanoutSwap.	      FanoutSugarOp ::= "<-";
 
 -- DEFINITIONS
 
-TInt                  type     ::= "int";
-TReal                 type     ::= "real";
-TComplex              type     ::= "complex";
-TString               type     ::= "string";
-TQureg                type     ::= "qureg";
-TQuvoid               type     ::= "quvoid";
-TQuconst              type     ::= "quconst";
-TQuscratch            type     ::= "quscratch";
+TInt.	              Type     ::= "int";
+TReal.		      Type     ::= "real";
+TComplex.	      Type     ::= "complex";
+TString.	      Type     ::= "string";
+TQureg.		      Type     ::= "qureg";
+TQuvoid.	      Type     ::= "quvoid";
+TQuConst.	      Type     ::= "quConst";
+TQuscratch.	      Type     ::= "quscratch";
 
-ConstDef              constdef ::= "const" Ident "=" expr ";";
+JustConstDef.	      ConstDef ::= "Const" Ident "=" Expr0 ";";
 
-VarDef                vardef   ::= type Ident ";";
-VarDefAss             vardef   ::= type Ident "=" expr ";";
-VarDefExpr            vardef   ::= type Ident expr ";";
-ArgDef                argdef   ::= type Ident;
-ArgList               arglist  ::= "(" [argdef {"," argdef}] ")";
-Body                  body     ::= "{" {constdef | vardef} {stmt} "}";
-ConstDef              def      ::= constdef;
-VarDef                def      ::= vardef;
-FunDef                def      ::= type Ident arglist body;
-ProcDef               def      ::= "procedure" Ident arglist body;
-OperatorDef           def      ::= "operator" Ident arglist body;
-QufunctDef            def      ::= "qufunct" Ident arglist body;
-ExternOpDef           def      ::= "extern" "operator" Ident arglist ";";
-ExternQufunctDef      def      ::= "extern" "qufunct" Ident  arglist ";";
+JustVarDef.	      VarDef   ::= Type Ident ";";
+VarDefAss.	      VarDef   ::= Type Ident "=" Expr0 ";";
+VarDefExpr.	      VarDef   ::= Type Ident Expr0 ";";
+separator             ArgDef   ",";
+terminator            ArgDef   "";
+JustArgDef.           ArgDef   ::= Type Ident;
+separator             ConstOrVar "";
+terminator            ConstOrVar "";
+ConstDefList.	      ConstOrVar ::= ConstDef;
+VarDefList.	      ConstOrVar ::= VarDef;
+JustBody.	      Body     ::= "{" [ConstOrVar] [Stmt] "}";
+DefConstDef.	      Def      ::= ConstDef;
+VarDefDef.	      Def      ::= VarDef;
+FunDef.		      Def      ::= Type Ident "(" [ArgDef] ")" Body;
+ProcDef.	      Def      ::= "procedure" Ident "(" [ArgDef] ")" Body;
+OperatorDef.	      Def      ::= "operator" Ident "(" [ArgDef] ")" Body;
+QufunctDef.	      Def      ::= "qufunct" Ident "(" [ArgDef] ")" Body;
+ExternOpDef.	      Def      ::= "extern" "operator" Ident "(" [ArgDef] ")" ";";
+ExternQufunctDef.     Def      ::= "extern" "qufunct" Ident  "(" [ArgDef] ")" ";";
+
+-- EXPRESSIONS
+
+JustBlock.            Block    ::=      "{" [ Stmt ] "}";

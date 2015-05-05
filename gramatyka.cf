@@ -1,11 +1,8 @@
--- we wszystkich produkcjach oprócz complex-coord i identifier każdy przecinek
--- można zastąpić ', ws, ', jeżeli chcemy uwzględnić gdize mogą, ale nie muszą
--- być białe znaki
-
 -- EXPRESSIONS
-CComplexCoord.        complex-coord ::= ["+" | "-"] (Double | Integer);
-CJustConst.           const ::=         (Double | Integer);
-CConstComplexPair.    const ::=         "(" complex-coord "," complex-coord ")";
+
+CComplexCoord.        complexcoord ::=  [ "+" | "-" ] ( Double | Integer );
+CJustConst.           const ::=         ( Double | Integer );
+CConstComplexPair.    const ::=         "(" complexcoord "," complexcoord ")";
 CBoolTrue.            const ::=         "true";
 CBoolFalse.           const ::=         "false";
 CString.              const ::=         String;
@@ -14,25 +11,25 @@ CString.              const ::=         String;
 EFCall.               expr0 ::=         Ident "(" [expr0 {"," expr0}] ")";        -- wywolanie funkcji
 ENieWiemJakiesListy   expr0 ::=         Ident "[" [expr0, [tworzenieList expr0]] "]";
 EConst.               expr11 ::=        const;
-EEq.                  expr0 ::=         expr0 "==" expr1
+EEq.                  expr0 ::=         expr0 "==" expr1;
 ENeq.                 expr0 ::=         expr0 "!=" expr1;
-ELe                   expr1 ::=         expr1 "<" expr2;
-ELEq                  expr1 ::=         expr1 "<=" expr2;
-EGr                   expr1 ::=         expr1 ">" expr2;
-EGrEq                 expr1 ::=         expr1 ">=" expr2;
-EOr                   expr2 ::=         expr2 "or" expr3;
-EAnd                  expr3 ::=         expr3 "and" expr4;
-EXor                  expr4 ::=         expr4 "xor" expr5;
-ENot                  expr5 ::=         "not" expr6;
-EAdd                  expr6 ::=         expr6 "+" expr7;
-ESubtract             expr6 ::=         expr6 "-" expr7;
-EStringConcat         expr6 ::=         expr6 "&" expr7;
-ETimes                expr7 ::=         expr7 "*" expr8;
-EDiv                  expr7 ::=         expr7 "/" expr8;
-EMod                  expr7 ::=         expr7 "mod" expr8;
-EPow                  expr8 ::=         expr8 "^" expr9;
-EUnaryMinus           expr9 ::=         "-" expr10;
-ESize                 expr10 ::=         "#" expr11;
+ELe.                  expr1 ::=         expr1 "<" expr2;
+ELEq.                 expr1 ::=         expr1 "<=" expr2;
+EGr.                  expr1 ::=         expr1 ">" expr2;
+EGrEq.                expr1 ::=         expr1 ">=" expr2;
+EOr.                  expr2 ::=         expr2 "or" expr3;
+EAnd.                 expr3 ::=         expr3 "and" expr4;
+EXor.                 expr4 ::=         expr4 "xor" expr5;
+ENot.                 expr5 ::=         "not" expr6;
+EAdd.                 expr6 ::=         expr6 "+" expr7;
+ESubtract.            expr6 ::=         expr6 "-" expr7;
+EStringConcat.        expr6 ::=         expr6 "&" expr7;
+ETimes.               expr7 ::=         expr7 "*" expr8;
+EDiv.                 expr7 ::=         expr7 "/" expr8;
+EMod.                 expr7 ::=         expr7 "mod" expr8;
+EPow.                 expr8 ::=         expr8 "^" expr9;
+EUnaryMinus.          expr9 ::=         "-" expr10;
+ESize.                expr10 ::=         "#" expr11;
 _.                    expr10 ::=         "(" expr0 ")";
 
 KonkatenacjaList.     tworzenieList ::= ":";

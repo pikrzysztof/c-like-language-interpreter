@@ -11,34 +11,55 @@ import Pargramatyka
 import Skelgramatyka
 import Printgramatyka
 import Absgramatyka
-
-
-
-
 import ErrM
-
+import Data.Void as Void
+import Data.Map
+import Data.Complex as Complex
+import Control.Monad.Except
+import Control.Monad.Reader
+import Control.Monad.State
 type ParseFun a = [Token] -> Err a
-
 myLLexer = myLexer
-
 type Verbosity = Int
+-- koniec definicji magicznego generatora parserow
+
+data Stan = Stan { stan :: Data.Map.Map Ident Loc
+                 }
+
+data Srodowisko = Srod { srod :: Data.Map.Map Ident MyType
+                       }
+
+type Przetwarzacz a = ExceptT String (ReaderT Srodowisko (StateT Stan IO)) a
+                  -- b  = ExceptT
+                    --    (StateT Stan
+                    --     (ReaderT Srodowisko
+                    --      (IO (Either String a))) b)
+
+
+type Loc = Int                  -- lokacja
+data MyType = String
+            | Num
+            | Bool
+            | Complex
+            | Void
+              deriving (Eq, Ord, Show, Read)
+
+
+
 
 putStrV :: Verbosity -> String -> IO ()
 putStrV v s = if v > 1 then putStrLn s else return ()
 
-runFile :: (Print a, Show a) => Verbosity -> ParseFun a -> FilePath -> IO ()
+runFile :: Verbosity -> ParseFun Program -> FilePath -> IO ()
 runFile v p f = putStrLn f >> readFile f >>= run v p
 
-run :: (Print a, Show a) => Verbosity -> ParseFun a -> String -> IO ()
-run v p s = let ts = myLLexer s in case p ts of
-           Bad s    -> do putStrLn "\nParse              Failed...\n"
---                          putStrV v "Tokens:"
---                          putStrV v $ show ts
-                          putStrLn s
+run :: Verbosity -> ParseFun Program -> String -> IO ()
+run v p s = let ts = myLLexer s in case  p ts of
+           Bad s    -> do putStrLn s
                           exitFailure
            Ok  tree -> do putStrLn "\nParse Successful!"
-                          showTree v tree
-
+-- tree to tak wlasciwie QCLProgram [Def] [Stmt]
+                          Main.showTree v tree
                           exitSuccess
 
 
@@ -54,3 +75,6 @@ main = do args <- getArgs
             [] -> hGetContents stdin >>= run 2 pProgram
             "-s":fs -> mapM_ (runFile 0 pProgram) fs
             fs -> mapM_ (runFile 2 pProgram) fs
+
+-- typeCheck :: Err Program -> ExceptT Program
+typeCheck = undefined

@@ -6,7 +6,7 @@ separator             Ident       ",";
 --ComplexCoordInt.      ComplexCoord ::=	Integer;
 --ComplexCoordDouble.   ComplexCoord ::=	Integer;
 CJustConst.	      Const ::=         Integer;
-CConstComplexPair.    Const ::=         "(" Integer "," Integer ")";
+CConstComplexPair.    Const ::=         "(" Double "," Double ")";
 CBoolTrue.            Const ::=         "true";
 CBoolFalse.           Const ::=         "false";
 CString.              Const ::=         String;

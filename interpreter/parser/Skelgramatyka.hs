@@ -22,7 +22,7 @@ transProgram x = case x of
 transConst :: Const -> Result
 transConst x = case x of
   CJustConst n  -> failure x
-  CConstComplexPair n1 n2  -> failure x
+  CConstComplexPair d1 d2  -> failure x
   CBoolTrue  -> failure x
   CBoolFalse  -> failure x
   CString str  -> failure x

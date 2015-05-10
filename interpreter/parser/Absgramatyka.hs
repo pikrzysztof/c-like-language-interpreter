@@ -14,7 +14,7 @@ data Program =
 
 data Const =
    CJustConst Integer
- | CConstComplexPair Integer Integer
+ | CConstComplexPair Double Double
  | CBoolTrue
  | CBoolFalse
  | CString String

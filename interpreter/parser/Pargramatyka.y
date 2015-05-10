@@ -93,6 +93,7 @@ import ErrM
 
 L_ident  { PT _ (TV $$) }
 L_integ  { PT _ (TI $$) }
+L_doubl  { PT _ (TD $$) }
 L_quoted { PT _ (TL $$) }
 
 
@@ -100,6 +101,7 @@ L_quoted { PT _ (TL $$) }
 
 Ident   :: { Ident }   : L_ident  { Ident $1 }
 Integer :: { Integer } : L_integ  { (read ( $1)) :: Integer }
+Double  :: { Double }  : L_doubl  { (read ( $1)) :: Double }
 String  :: { String }  : L_quoted {  $1 }
 
 Program :: { Program }
@@ -114,7 +116,7 @@ ListIdent : {- empty -} { [] }
 
 Const :: { Const }
 Const : Integer { CJustConst $1 } 
-  | '(' Integer ',' Integer ')' { CConstComplexPair $2 $4 }
+  | '(' Double ',' Double ')' { CConstComplexPair $2 $4 }
   | 'true' { CBoolTrue }
   | 'false' { CBoolFalse }
   | String { CString $1 }

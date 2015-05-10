@@ -92,16 +92,10 @@ instance Print Program where
    QCLProgram defs stmts -> prPrec i 0 (concatD [prt 0 defs , prt 0 stmts])
 
 
-instance Print ComplexCoord where
-  prt i e = case e of
-   ComplexCoordInt n -> prPrec i 0 (concatD [prt 0 n])
-   ComplexCoordDouble d -> prPrec i 0 (concatD [prt 0 d])
-
-
 instance Print Const where
   prt i e = case e of
-   CJustConst complexcoord -> prPrec i 0 (concatD [prt 0 complexcoord])
-   CConstComplexPair complexcoord0 complexcoord -> prPrec i 0 (concatD [doc (showString "(") , prt 0 complexcoord0 , doc (showString ",") , prt 0 complexcoord , doc (showString ")")])
+   CJustConst n -> prPrec i 0 (concatD [prt 0 n])
+   CConstComplexPair d0 d -> prPrec i 0 (concatD [doc (showString "(") , prt 0 d0 , doc (showString ",") , prt 0 d , doc (showString ")")])
    CBoolTrue  -> prPrec i 0 (concatD [doc (showString "true")])
    CBoolFalse  -> prPrec i 0 (concatD [doc (showString "false")])
    CString str -> prPrec i 0 (concatD [prt 0 str])
@@ -111,7 +105,8 @@ instance Print Expr where
   prt i e = case e of
    Variable id -> prPrec i 11 (concatD [prt 0 id])
    EFCall id exprs -> prPrec i 11 (concatD [prt 0 id , doc (showString "(") , prt 0 exprs , doc (showString ")")])
-   ETableElement id exprs -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 exprs , doc (showString "]")])
+   ETableElement id expr -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 expr , doc (showString "]")])
+   EMatrixElement id expr0 expr -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 expr0 , doc (showString ",") , prt 0 expr , doc (showString "]")])
    EListaOdDo id expr0 expr -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 expr0 , doc (showString ":") , prt 0 expr , doc (showString "]")])
    ELiczbaElementowListy id expr0 expr -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 expr0 , doc (showString "::") , prt 0 expr , doc (showString "]")])
    ETrzecieListy id expr0 expr -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 expr0 , doc (showString "..") , prt 0 expr , doc (showString "]")])

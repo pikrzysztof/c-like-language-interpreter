@@ -95,7 +95,7 @@ instance Print Program where
 instance Print Const where
   prt i e = case e of
    CJustConst n -> prPrec i 0 (concatD [prt 0 n])
-   CConstComplexPair n0 n -> prPrec i 0 (concatD [doc (showString "(") , prt 0 n0 , doc (showString ",") , prt 0 n , doc (showString ")")])
+   CConstComplexPair d0 d -> prPrec i 0 (concatD [doc (showString "(") , prt 0 d0 , doc (showString ",") , prt 0 d , doc (showString ")")])
    CBoolTrue  -> prPrec i 0 (concatD [doc (showString "true")])
    CBoolFalse  -> prPrec i 0 (concatD [doc (showString "false")])
    CString str -> prPrec i 0 (concatD [prt 0 str])

@@ -1,6 +1,6 @@
 all:
-#	happy -gcai Pargramatyka.y
-#	alex -g Lexgramatyka.x
+	happy -gca Pargramatyka.y
+	alex -g Lexgramatyka.x
 	ghc --make Testgramatyka.hs -o Testgramatyka
 
 clean:
@@ -9,3 +9,5 @@ clean:
 
 distclean: clean
 	-rm -f Docgramatyka.* Lexgramatyka.* Pargramatyka.* Layoutgramatyka.* Skelgramatyka.* Printgramatyka.* Testgramatyka.* Absgramatyka.* Testgramatyka ErrM.* SharedString.* ComposOp.* gramatyka.dtd XMLgramatyka.* Makefile*
+	
+

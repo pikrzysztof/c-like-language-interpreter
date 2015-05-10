@@ -93,7 +93,6 @@ import ErrM
 
 L_ident  { PT _ (TV $$) }
 L_integ  { PT _ (TI $$) }
-L_doubl  { PT _ (TD $$) }
 L_quoted { PT _ (TL $$) }
 
 
@@ -101,7 +100,6 @@ L_quoted { PT _ (TL $$) }
 
 Ident   :: { Ident }   : L_ident  { Ident $1 }
 Integer :: { Integer } : L_integ  { (read ( $1)) :: Integer }
-Double  :: { Double }  : L_doubl  { (read ( $1)) :: Double }
 String  :: { String }  : L_quoted {  $1 }
 
 Program :: { Program }
@@ -114,14 +112,9 @@ ListIdent : {- empty -} { [] }
   | Ident ',' ListIdent { (:) $1 $3 }
 
 
-ComplexCoord :: { ComplexCoord }
-ComplexCoord : Integer { ComplexCoordInt $1 } 
-  | Double { ComplexCoordDouble $1 }
-
-
 Const :: { Const }
-Const : ComplexCoord { CJustConst $1 } 
-  | '(' ComplexCoord ',' ComplexCoord ')' { CConstComplexPair $2 $4 }
+Const : Integer { CJustConst $1 } 
+  | '(' Integer ',' Integer ')' { CConstComplexPair $2 $4 }
   | 'true' { CBoolTrue }
   | 'false' { CBoolFalse }
   | String { CString $1 }
@@ -136,7 +129,8 @@ ListExpr : {- empty -} { [] }
 Expr11 :: { Expr }
 Expr11 : Ident { Variable $1 } 
   | Ident '(' ListExpr ')' { EFCall $1 $3 }
-  | Ident '[' ListExpr ']' { ETableElement $1 $3 }
+  | Ident '[' Expr ']' { ETableElement $1 $3 }
+  | Ident '[' Expr ',' Expr ']' { EMatrixElement $1 $3 $5 }
   | Ident '[' Expr ':' Expr ']' { EListaOdDo $1 $3 $5 }
   | Ident '[' Expr '::' Expr ']' { ELiczbaElementowListy $1 $3 $5 }
   | Ident '[' Expr '..' Expr ']' { ETrzecieListy $1 $3 $5 }
@@ -256,14 +250,14 @@ FanoutSugarOp : '->' { FanoutRight }
 
 Type :: { Type }
 Type : ST { SimpleType $1 } 
-  | ST 'string' { TString $1 }
   | ST 'vector' { Vector $1 }
   | ST 'matrix' { Matrix $1 }
   | ST 'tensor' Integer { Tensor $1 $3 }
 
 
 ST :: { ST }
-ST : 'boolean' { TBoolean } 
+ST : 'string' { TString } 
+  | 'boolean' { TBoolean }
   | 'int' { TInt }
   | 'real' { TReal }
   | 'complex' { TComplex }

@@ -26,86 +26,86 @@ data Const =
   deriving (Eq,Ord,Show,Read)
 
 data Expr =
-   Variable Ident
- | EFCall Ident [Expr]
- | ETableElement Ident [Expr]
- | EListaOdDo Ident Expr Expr
- | ELiczbaElementowListy Ident Expr Expr
- | ETrzecieListy Ident Expr Expr
- | EListyBez Ident Expr Expr
- | EConst Const
- | EEq Expr Expr
- | ENeq Expr Expr
- | ELe Expr Expr
- | ELEq Expr Expr
- | EGr Expr Expr
- | EGrEq Expr Expr
- | EOr Expr Expr
- | EAnd Expr Expr
- | EXor Expr Expr
- | ENot Expr
- | EAdd Expr Expr
- | ESubtract Expr Expr
- | EStringConcat Expr Expr
- | ETimes Expr Expr
- | EDiv Expr Expr
- | EMod Expr Expr
- | EPow Expr Expr
- | EUnaryMinus Expr
- | ESize Expr
+   Variable Ident               -- zmienna
+ | EFCall Ident [Expr]          -- wywolanie funkcji
+ | ETableElement Ident [Expr]   -- x[y, x, z]
+ | EListaOdDo Ident Expr Expr   -- x[a:b]
+ | ELiczbaElementowListy Ident Expr Expr -- x[z::y]
+ | ETrzecieListy Ident Expr Expr         -- x[z..y]
+ | EListyBez Ident Expr Expr             -- x[z\y]
+ | EConst Const                          -- const
+ | EEq Expr Expr                         -- x == z
+ | ENeq Expr Expr                        -- x != z
+ | ELe Expr Expr                         -- x < y
+ | ELEq Expr Expr                        -- x <= y
+ | EGr Expr Expr                         -- x > y
+ | EGrEq Expr Expr                       -- x >= y
+ | EOr Expr Expr                         -- x or y
+ | EAnd Expr Expr                        -- x and y
+ | EXor Expr Expr                        -- x xor y
+ | ENot Expr                             -- not y
+ | EAdd Expr Expr                        -- x + y
+ | ESubtract Expr Expr                   -- x - y
+ | EStringConcat Expr Expr               -- x & y
+ | ETimes Expr Expr                      -- x * y
+ | EDiv Expr Expr                        -- x / y
+ | EMod Expr Expr                        -- x mod y
+ | EPow Expr Expr                        -- x ^ y
+ | EUnaryMinus Expr                      -- -x
+ | ESize Expr                            -- #x
   deriving (Eq,Ord,Show,Read)
 
 data Option =
-   JustOption Ident
+   JustOption Ident             -- opcja jakas, identyfikator
   deriving (Eq,Ord,Show,Read)
 
 data Stmt =
-   UnitaryOpInvCall Ident [Expr]
- | Expression Expr
- | Assignment Expr Expr
- | FanoutSugar Expr FanoutSugarOp Expr
- | ForLoop Ident Expr Expr Block
- | ForStepLoop Ident Expr Expr Expr Block
- | WhileLoop Expr Block
- | UntilLoop Block Expr
- | ConditionalBranch Expr Block
- | ConditionalBranchElse Expr Block Block
- | ReturnExpr Expr
- | InputExpr Expr Ident
- | InputNoExpr Ident
- | Print [Expr]
- | Exit Expr
- | MeasureNoIdent Expr
- | MeasureIdent Expr Ident
- | Reset
- | List [Ident]
- | DumpExpr Expr
- | DumpNoExpr
- | LoadExpr Expr
- | LoadNoExpr
- | SaveExpr Expr
- | SaveNoExpr
- | Shell
- | SetExpr Option Expr
- | Semicolon
+   UnitaryOpInvCall Ident [Expr] -- !f(args)
+ | Expression Expr               -- expr;
+ | Assignment Expr Expr          -- x = y
+ | FanoutSugar Expr FanoutSugarOp Expr -- x <- y albo x -> y albo x <-> y
+ | ForLoop Ident Expr Expr Block       -- for i = 0 to 5 {costam}
+ | ForStepLoop Ident Expr Expr Expr Block -- for i = 0 to 5 step 3 {costam}
+ | WhileLoop Expr Block                   -- while (expr) {costam}
+ | UntilLoop Block Expr                   -- {costam} until (expr)
+ | ConditionalBranch Expr Block           -- if expr then {costam}
+ | ConditionalBranchElse Expr Block Block -- if expr then {costam} else {cos2}
+ | ReturnExpr Expr                        -- return x;
+ | InputExpr Expr Ident                   -- input expr ident
+ | InputNoExpr Ident                      -- input ident
+ | Print [Expr]                           -- print [expr]
+ | Exit Expr                              -- exit expr
+ | MeasureNoIdent Expr                    -- measure expr
+ | MeasureIdent Expr Ident                -- measure expr, ident
+ | Reset                                  -- reset
+ | List [Ident]                           -- list [ident]
+ | DumpExpr Expr                          -- dump expr
+ | DumpNoExpr                             -- dump
+ | LoadExpr Expr                          -- load expr
+ | LoadNoExpr                             -- load
+ | SaveExpr Expr                          -- save expr
+ | SaveNoExpr                             -- save
+ | Shell                                  -- shhell
+ | SetExpr Option Expr                    -- set option expr
+ | Semicolon                              -- ;
   deriving (Eq,Ord,Show,Read)
 
 data FanoutSugarOp =
-   FanoutRight
- | FanoutLeft
- | FanoutSwap
+   FanoutRight                  -- <-
+ | FanoutLeft                   -- ->
+ | FanoutSwap                   -- <->
   deriving (Eq,Ord,Show,Read)
 
 data Type =
-   SimpleType ST
- | TString ST
- | Vector ST
- | Matrix ST
- | Tensor ST Integer
+   SimpleType ST                -- zwykly typ
+ | Vector ST                    -- wektor
+ | Matrix ST                    -- macierz
+ | Tensor ST Integer            -- tensor rzedu int
   deriving (Eq,Ord,Show,Read)
 
 data ST =
-   TBoolean
+   TString
+ | TBoolean
  | TInt
  | TReal
  | TComplex
@@ -159,4 +159,3 @@ data Def =
 data Block =
    JustBlock [Stmt]
   deriving (Eq,Ord,Show,Read)
-

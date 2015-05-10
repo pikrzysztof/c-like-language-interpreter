@@ -192,7 +192,6 @@ instance Print FanoutSugarOp where
 instance Print Type where
   prt i e = case e of
    SimpleType st -> prPrec i 0 (concatD [prt 0 st])
-   TString st -> prPrec i 0 (concatD [prt 0 st , doc (showString "string")])
    Vector st -> prPrec i 0 (concatD [prt 0 st , doc (showString "vector")])
    Matrix st -> prPrec i 0 (concatD [prt 0 st , doc (showString "matrix")])
    Tensor st n -> prPrec i 0 (concatD [prt 0 st , doc (showString "tensor") , prt 0 n])
@@ -200,6 +199,7 @@ instance Print Type where
 
 instance Print ST where
   prt i e = case e of
+   TString  -> prPrec i 0 (concatD [doc (showString "string")])
    TBoolean  -> prPrec i 0 (concatD [doc (showString "boolean")])
    TInt  -> prPrec i 0 (concatD [doc (showString "int")])
    TReal  -> prPrec i 0 (concatD [doc (showString "real")])

@@ -6,10 +6,10 @@ import System.IO ( stdin, hGetContents )
 import System.Environment ( getArgs, getProgName )
 import System.Exit ( exitFailure, exitSuccess )
 
-import qualified Lexgramatyka
-import qualified Pargramatyka
-import qualified Skelgramatyka
-import qualified Printgramatyka
+import Lexgramatyka
+import Pargramatyka
+import Skelgramatyka
+import Printgramatyka
 import Absgramatyka
 import ErrM
 
@@ -17,9 +17,9 @@ import Control.Monad.Except
 import Control.Monad.RWS
 import qualified Srodowisko as Sr
 import qualified Stan as St
-import Typy
-type ParseFun a = [Lexgramatyka.Token] -> Err a
-myLLexer = Pargramatyka.myLexer
+
+type ParseFun a = [Token] -> Err a
+myLLexer = myLexer
 type Verbosity = Int
 -- koniec zmudnych definicji
 
@@ -40,32 +40,29 @@ run :: Verbosity -> ParseFun Program -> String -> IO ()
 run v p s = let ts = myLLexer s in case  p ts of
            Bad s    -> do putStrLn s
                           exitFailure
-           Ok  tree -> do putStrLn "Udalo sie sparsowac!"
-                          runRWST ( runExceptT $ zinterpretuj tree)
+           Ok  tree -> do runRWST ( runExceptT $ zinterpretuj tree)
                             Sr.srodowiskoZero St.stanZero
                           exitSuccess
 
 
-showTree :: (Show a, Printgramatyka.Print a) => Int -> a -> IO ()
+showTree :: (Show a, Print a) => Int -> a -> IO ()
 showTree v tree
  = do
       putStrV v $ "\n[Abstract Syntax]\n\n" ++ show tree
-      putStrV v $ "\n[Linearized tree]\n\n" ++ Printgramatyka.printTree tree
+      putStrV v $ "\n[Linearized tree]\n\n" ++ printTree tree
 
 main :: IO ()
 main = do args <- getArgs
           case args of
-            [] -> hGetContents stdin >>= run 2 Pargramatyka.pProgram
-            "-s":fs -> mapM_ (runFile 0 Pargramatyka.pProgram) fs
-            fs -> mapM_ (runFile 2 Pargramatyka.pProgram) fs
+            [] -> hGetContents stdin >>= run 2 pProgram
+            "-s":fs -> mapM_ (runFile 0 pProgram) fs
+            fs -> mapM_ (runFile 2 pProgram) fs
 
-oblicz_wyrazenie :: Expr -> Przetwarzacz (TypQCL ProstyTypQCL)
+oblicz_wyrazenie :: Expr -> Przetwarzacz St.TypQCL
 oblicz_wyrazenie e = do
   case e of
-   Variable id -> do
-     Just lok <- asks (Sr.daj_lokacje id)
-     Just wynik <- gets (St.daj_wartosc lok )
-     return wynik
+   Variable id ->
+     return undefined
    EFCall id [expr] ->
      return undefined
    ETableElement id [expr] ->
@@ -78,20 +75,8 @@ oblicz_wyrazenie e = do
      return undefined
    EListyBez id expr1 expr2 ->           -- x[z\y]
      return undefined
-   EConst c -> do
-     case c of
-      (CString x) -> do
-        return $ PT (Napis x)
-      (CBoolTrue) -> do
-        return $ PT (ZmiennaLogiczna True)
-      (CBoolFalse) -> do
-        return $ PT (ZmiennaLogiczna False)
-      (CJustConst (ComplexCoordInt x)) -> do
-        return $ PT (Liczba x)
-      (CJustConst (ComplexCoordDouble x)) -> do
-        return $ PT (Liczba x)
-      (CConstComplexPair cc0 cc1) -> do
-        return undefined
+   EConst (CJustConst cc) ->                          -- const
+     return undefined
    EEq expr1 expr2 ->                       -- x == z
      return undefined
    ENeq expr1 expr2 ->                      -- x != z
@@ -131,7 +116,7 @@ oblicz_wyrazenie e = do
    ESize expr ->                          -- #x
      return undefined
 
-wloz_def :: Ident -> (TypQCL ProstyTypQCL) -> Przetwarzacz Sr.Srodowisko
+wloz_def :: Ident -> St.TypQCL -> Przetwarzacz Sr.Srodowisko
 wloz_def id wartosc = do
   lok <- gets St.daj_wolna_lok
   modify St.zwieksz_wolna_lok
@@ -149,17 +134,14 @@ oblicz_def def = do
    DefConstDef (QuantumConstDef typ id) -> do
      return undefined
    VarDefDef (JustVarDef typ id) -> do
-     wynik <- wloz_def id (PT (Nic))
+     wynik <- wloz_def id undefined
      return wynik
    VarDefDef (VarDefAss typ id expr) -> do
      ile <- oblicz_wyrazenie expr
      wynik <- wloz_def id ile
      return wynik
    VarDefDef (VarDefTable typ id expr) -> do
-     PT (LiczbaCalkowita ile) <- oblicz_wyrazenie expr
-     wynik <- wloz_def id $ ZT (Tab { tablica = [] :: [ProstyTypQCL],
-                                     rozmiar = ile })
-     return wynik
+     return undefined
    FunDef typ id argy cialo -> do
      return undefined
    ProcDef id argy cialo -> do
@@ -184,36 +166,37 @@ oblicz_def def = do
      return undefined
 
 zinterpretuj :: Program -> Przetwarzacz ()
-zinterpretuj (QCLProgram (def:resztadef) stmt) = do
-  lift $ lift $ putStrLn ("fajnie " ++ (show def))
-  sr <- oblicz_def def
-  lift $ lift $ putStrLn ("srodowisko " ++ (show sr))
-  stan <- get
-  lift $ lift $ putStrLn ("stan " ++ (show stan))
-  local (const sr) (zinterpretuj (QCLProgram resztadef stmt))
-
-zinterpretuj (QCLProgram [] (stmt:stmt2)) = do
-  zinterpretuj_stmt stmt
-  zinterpretuj (QCLProgram [] stmt2)
- `catchError` zlap_wyjatek
-
-zinterpretuj this@(QCLProgram [] []) = do
-  srod <- ask
-  stan <- get
-  lift $ lift $ putStrLn "Koniec."
-  lift $ lift $ putStrLn $ "STAN " ++ (show stan)
-  lift $ lift $ putStrLn $ "SRODOWISKO " ++ show (srod)
-  return ()
+zinterpretuj (QCLProgram decl stmt) = undefined
 
 
-zlap_wyjatek :: String -> ExceptT String (RWST Sr.Srodowisko () St.Stan IO) ()
-zlap_wyjatek x = do
-  lift $ lift $ putStrLn ("BLAD " ++ x)
-  srod <- ask
-  stan <- get
-  lift $ lift $ putStrLn $ "SRODOWISKO " ++ (show srod) ++ "\nSTAN " ++ (show stan)
-  return ()
+  -- local (zarejestruj_deklaracje def1) $ zinterpretuj defs stmt
+  -- where
+  --   zarejestruj_deklaracje :: Def -> Srodowisko -> Srodowisko
+  --   zarejestruj_deklaracje def1 =
+  --     case def1 of
+  --      DefConstDef constDef -> case constDef of
+  --                               ClassicalConstDef id expr = zarezerwuj
+  --      ExternOpDef ident argef -> undefined
+  --      ExternQufunctDef id arged -> undefined
+  --      ExternCondOpDef id argdef -> undefined
+  --      ExternCondQufunctDef id argdef -> undefined
 
 
-zinterpretuj_stmt :: Stmt -> Przetwarzacz ()
-zinterpretuj_stmt = undefined
+
+
+
+
+
+
+
+
+-- zinterpretujDef :: [Def] -> Przetwarzacz ()
+-- zinterpretujDef (DefConstDef cd) = case cd of
+--   ClassicalConstDef id expr -> do
+--     sprawdz_unikalnosc id
+--     case DefConstDef of
+--      modify
+
+
+zinterpretujStmt :: [Stmt] -> Przetwarzacz ()
+zinterpretujStmt = undefined

@@ -19,16 +19,10 @@ transProgram x = case x of
   QCLProgram defs stmts  -> failure x
 
 
-transComplexCoord :: ComplexCoord -> Result
-transComplexCoord x = case x of
-  ComplexCoordInt n  -> failure x
-  ComplexCoordDouble d  -> failure x
-
-
 transConst :: Const -> Result
 transConst x = case x of
-  CJustConst complexcoord  -> failure x
-  CConstComplexPair complexcoord1 complexcoord2  -> failure x
+  CJustConst n  -> failure x
+  CConstComplexPair n1 n2  -> failure x
   CBoolTrue  -> failure x
   CBoolFalse  -> failure x
   CString str  -> failure x
@@ -38,7 +32,8 @@ transExpr :: Expr -> Result
 transExpr x = case x of
   Variable id  -> failure x
   EFCall id exprs  -> failure x
-  ETableElement id exprs  -> failure x
+  ETableElement id expr  -> failure x
+  EMatrixElement id expr1 expr2  -> failure x
   EListaOdDo id expr1 expr2  -> failure x
   ELiczbaElementowListy id expr1 expr2  -> failure x
   ETrzecieListy id expr1 expr2  -> failure x
@@ -112,7 +107,6 @@ transFanoutSugarOp x = case x of
 transType :: Type -> Result
 transType x = case x of
   SimpleType st  -> failure x
-  TString st  -> failure x
   Vector st  -> failure x
   Matrix st  -> failure x
   Tensor st n  -> failure x
@@ -120,6 +114,7 @@ transType x = case x of
 
 transST :: ST -> Result
 transST x = case x of
+  TString  -> failure x
   TBoolean  -> failure x
   TInt  -> failure x
   TReal  -> failure x

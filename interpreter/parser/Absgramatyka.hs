@@ -12,14 +12,9 @@ data Program =
    QCLProgram [Def] [Stmt]
   deriving (Eq,Ord,Show,Read)
 
-data ComplexCoord =
-   ComplexCoordInt Integer
- | ComplexCoordDouble Double
-  deriving (Eq,Ord,Show,Read)
-
 data Const =
-   CJustConst ComplexCoord
- | CConstComplexPair ComplexCoord ComplexCoord
+   CJustConst Integer
+ | CConstComplexPair Integer Integer
  | CBoolTrue
  | CBoolFalse
  | CString String
@@ -28,7 +23,8 @@ data Const =
 data Expr =
    Variable Ident
  | EFCall Ident [Expr]
- | ETableElement Ident [Expr]
+ | ETableElement Ident Expr
+ | EMatrixElement Ident Expr Expr
  | EListaOdDo Ident Expr Expr
  | ELiczbaElementowListy Ident Expr Expr
  | ETrzecieListy Ident Expr Expr
@@ -98,14 +94,14 @@ data FanoutSugarOp =
 
 data Type =
    SimpleType ST
- | TString ST
  | Vector ST
  | Matrix ST
  | Tensor ST Integer
   deriving (Eq,Ord,Show,Read)
 
 data ST =
-   TBoolean
+   TString
+ | TBoolean
  | TInt
  | TReal
  | TComplex

@@ -3,10 +3,10 @@ QCLProgram.           Program   ::= [Def] [Stmt];
 
 separator             Ident       ",";
 
-ComplexCoordInt.      ComplexCoord ::=	Integer;
-ComplexCoordDouble.   ComplexCoord ::=	Double;
-CJustConst.	      Const ::=         ComplexCoord;
-CConstComplexPair.    Const ::=         "(" ComplexCoord "," ComplexCoord ")";
+--ComplexCoordInt.      ComplexCoord ::=	Integer;
+--ComplexCoordDouble.   ComplexCoord ::=	Integer;
+CJustConst.	      Const ::=         Integer;
+CConstComplexPair.    Const ::=         "(" Integer "," Integer ")";
 CBoolTrue.            Const ::=         "true";
 CBoolFalse.           Const ::=         "false";
 CString.              Const ::=         String;
@@ -14,7 +14,8 @@ CString.              Const ::=         String;
 separator             Expr   ",";
 Variable.             Expr11 ::=        Ident;
 EFCall.               Expr11 ::=        Ident "(" [ Expr ] ")";
-ETableElement.        Expr11 ::=        Ident "[" [ Expr ] "]";
+ETableElement.        Expr11 ::=        Ident "[" Expr "]";
+EMatrixElement.       Expr11 ::=        Ident "[" Expr "," Expr "]";
 EListaOdDo.           Expr11 ::=        Ident "[" Expr ":" Expr "]";
 ELiczbaElementowListy. Expr11 ::=       Ident "[" Expr "::" Expr "]";
 ETrzecieListy.        Expr11 ::=        Ident "[" Expr ".." Expr "]";
@@ -82,11 +83,11 @@ FanoutSwap.	      FanoutSugarOp ::= "<->";
 -- DEFINITIONS
 
 SimpleType.           Type     ::= ST;
-TString.	      Type     ::= ST "string";
 Vector.               Type     ::= ST "vector";
 Matrix.               Type     ::= ST "matrix";
 Tensor.               Type     ::= ST "tensor" Integer;
 
+TString.              ST       ::= "string";
 TBoolean.             ST       ::= "boolean";
 TInt.	              ST       ::= "int";
 TReal.		      ST       ::= "real";

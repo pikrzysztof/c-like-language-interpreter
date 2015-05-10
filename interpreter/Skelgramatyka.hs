@@ -112,7 +112,6 @@ transFanoutSugarOp x = case x of
 transType :: Type -> Result
 transType x = case x of
   SimpleType st  -> failure x
-  TString st  -> failure x
   Vector st  -> failure x
   Matrix st  -> failure x
   Tensor st n  -> failure x
@@ -120,6 +119,7 @@ transType x = case x of
 
 transST :: ST -> Result
 transST x = case x of
+  TString  -> failure x
   TBoolean  -> failure x
   TInt  -> failure x
   TReal  -> failure x

@@ -8,7 +8,6 @@ int x = 5;
 const z = 3;
 while x > -3 + 1 * 3 {
       print "a to ", a, "\n";
-      // z = 3 / x;                //zakomentowac ten kawalek - nadpisanie stalej
       x = x - 1;
 }
 if 3 + 3 == 6{
@@ -29,4 +28,3 @@ if zz > jj {
 } else {
       print "zz jest mniejsze lub rowne jj\n";
 }
-x = x / (i - 12);               //dzielenie przez zero, program zakończy się błedem

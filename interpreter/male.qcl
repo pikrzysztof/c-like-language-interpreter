@@ -1,15 +1,23 @@
 const asd = 10;
 int x = 5;
 complex z = (5.0, 3.85);
-int y;
-print "do widzenia\n";
-print "baca\n";
-while x > 0 {
-      x = x - 1;
-      print "ala ma kota\n", x, "\n";
-}
-print "a teraz wypisze od 1 do 10";
-for x = 1 to 10 {
-    print x, "\n";
-}
-print "do widzenia\n";
+// complex y;
+complex j = 8;
+// print "do widzenia\n";
+// print "baca\n";
+// x = x / 0;
+// while x > 0 {
+//       x = x - 1;
+//       print "ala ma kota\n", x, "\n";
+// }
+// print "a teraz wypisze od 1 do 10";
+// for x = 1 to 10 {
+//     print x, "\n";
+// }
+// print "do widzenia\n";
+
+// for y = z to 10 * z step z {
+//     j = y - 10 * z;
+//     print "okon";
+//     print j;
+// }

@@ -1,0 +1,11 @@
+const asd = 10;
+int x = 5;
+complex z = (5.0, 3.85);
+// complex j = 8;                  //tu blad
+int i;
+asd = 5;              //zle
+// for i = 1 to true step 3 {      //tu tez blad
+//     ;;;
+// }
+
+5 + 3 > 0 + true;               //tez zle

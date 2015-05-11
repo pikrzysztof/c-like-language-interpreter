@@ -17,7 +17,7 @@ stanZero = Stan { stan = Map.empty,
                   funkcje = Map.empty
                 }
 
-data Funkcja = Fn { srod :: Srodowisko,
+data Funkcja = Fn { srod :: Srodowisko Loc,
                     argumenty :: [ArgDef],
                     cialo :: Body
                   } deriving (Show)

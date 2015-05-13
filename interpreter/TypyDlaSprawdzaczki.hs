@@ -5,9 +5,9 @@ data OgolnyTypQCL a = PT ProstyTypQCL
                     deriving (Eq, Ord, Read, Show)
 
 data ProstyTypQCL = Napis
-                  | Liczba
-                  | ZmiennaLogiczna
-                  | ZmiennaZespolona
+                  | Calkowita
+                  | Logiczna
+                  | Zespolona
                   deriving (Eq, Ord, Read, Show)
 
 data ZlozonyTypQCL a = Tablica a
@@ -22,9 +22,9 @@ do_typu_prostego :: A.Type -> ProstyTypQCL
 do_typu_prostego (A.SimpleType x) =
   case x of
    A.TString -> Napis
-   A.TBoolean -> ZmiennaLogiczna
-   A.TInt -> Liczba
-   A.TComplex -> ZmiennaZespolona
+   A.TBoolean -> Logiczna
+   A.TInt -> Calkowita
+   A.TComplex -> Zespolona
 
 do_typu_prostego_z_ST :: A.ST -> ProstyTypQCL
 do_typu_prostego_z_ST x = do_typu_prostego (A.SimpleType x)

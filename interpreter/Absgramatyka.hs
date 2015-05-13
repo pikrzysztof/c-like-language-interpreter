@@ -26,7 +26,7 @@ data Expr =
  | ETableElement Ident Expr
  | EMatrixElement Ident Expr Expr
  | EListaOdDo Ident Expr Expr
- | ELiczbaElementowListy Ident Expr Expr
+ | ECalkowitaElementowListy Ident Expr Expr
  | ETrzecieListy Ident Expr Expr
  | EListyBez Ident Expr Expr
  | EConst Const

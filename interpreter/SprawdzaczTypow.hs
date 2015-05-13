@@ -89,7 +89,7 @@ sprawdz_typy_stmt stmt = do
    WhileLoop e0 (JustBlock stmt) -> do {
      x <- sprawdz_typ_expr e0;
      mapM sprawdz_typy_stmt stmt;
-     if (fst x) == (TDS.PT TDS.ZmiennaLogiczna) then
+     if (fst x) == (TDS.PT TDS.Logiczna) then
         (return x)
      else
         (throwError $ "Nie pasuje typ w " ++ (show stmt) ++
@@ -106,7 +106,7 @@ sprawdz_typy_stmt stmt = do
      return undefined
    Exit expr -> do {
      x <- sprawdz_typ_expr expr;
-     if (fst x) == (TDS.PT TDS.Liczba) then
+     if (fst x) == (TDS.PT TDS.Calkowita) then
         (return x)
      else
        (throwError $ "Nie pasuje typ w " ++ (show stmt) ++
@@ -123,16 +123,16 @@ sprawdz_typ_expr e = do
   case e of
    EConst c -> do
      case c of
-      CJustConst _ -> return (TDS.PT TDS.Liczba, True)
-      CConstComplexPair _ _ -> return (TDS.PT TDS.ZmiennaZespolona, True)
-      CBoolTrue -> return (TDS.PT TDS.ZmiennaLogiczna, True)
-      CBoolFalse -> return (TDS.PT TDS.ZmiennaLogiczna, True)
+      CJustConst _ -> return (TDS.PT TDS.Calkowita, True)
+      CConstComplexPair _ _ -> return (TDS.PT TDS.Zespolona, True)
+      CBoolTrue -> return (TDS.PT TDS.Logiczna, True)
+      CBoolFalse -> return (TDS.PT TDS.Logiczna, True)
       CString _ -> return (TDS.PT TDS.Napis, True)
    EEq e1 e2 -> do {
      (v1, _) <- sprawdz_typ_expr e1;
      (v2, _) <- sprawdz_typ_expr e2;
      if v1 == v2 then
-       (return (TDS.PT TDS.ZmiennaLogiczna, True))
+       (return (TDS.PT TDS.Logiczna, True))
      else
        (throwError $ "Wyrazenie " ++ (show e) ++ " jest niepoprawne typowo, " ++
        "to co jest po lewej nie moze zostac porownane z tym po prawej.");
@@ -159,7 +159,7 @@ sprawdz_typ_expr e = do
      "To co jest po lewej jest nieporownywalne z wyrazeniem po prawej stronie.")
    EOr e1 e2 -> do {
      (x, _) <- sprawdz_typ_expr (EEq e1 e2);
-     if x == (TDS.PT TDS.ZmiennaLogiczna) then
+     if x == (TDS.PT TDS.Logiczna) then
         (return (x, True))
      else
         (throwError $ "Wyrazenie " ++ (show e) ++ " jest niepoprawne typowo.");
@@ -172,7 +172,7 @@ sprawdz_typ_expr e = do
      rzuc_blad $ "Wyrazenie " ++ (show e) ++ "jest niepoprawne typowo. ")
    ENot e0 -> do {
      (x, _) <- sprawdz_typ_expr e0;
-     if x == (TDS.PT TDS.ZmiennaLogiczna) then
+     if x == (TDS.PT TDS.Logiczna) then
        (return (x, True))
      else
        (throwError $ (show e) ++ "to nie jest wartosc logiczna nie mozna " ++
@@ -181,8 +181,8 @@ sprawdz_typ_expr e = do
    EAdd e0 e1 -> do {
      (x, _) <- sprawdz_typ_expr e0;
      (y, _) <- sprawdz_typ_expr e1;
-     if (x == y) && ((x == (TDS.PT TDS.Liczba))
-                     || x == (TDS.PT TDS.ZmiennaZespolona)) then
+     if (x == y) && ((x == (TDS.PT TDS.Calkowita))
+                     || x == (TDS.PT TDS.Zespolona)) then
        (return (x, True))
      else
        (throwError $ "nie mozna dodac do siebie " ++ (show e));

@@ -590,7 +590,7 @@ happyReduction_22 (happy_x_6 `HappyStk`
 	case happyOut13 happy_x_3 of { happy_var_3 -> 
 	case happyOut13 happy_x_5 of { happy_var_5 -> 
 	happyIn12
-		 (ELiczbaElementowListy happy_var_1 happy_var_3 happy_var_5
+		 (ECalkowitaElementowListy happy_var_1 happy_var_3 happy_var_5
 	) `HappyStk` happyRest}}}
 
 happyReduce_23 = happyReduce 6# 8# happyReduction_23

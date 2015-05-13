@@ -108,7 +108,7 @@ instance Print Expr where
    ETableElement id expr -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 expr , doc (showString "]")])
    EMatrixElement id expr0 expr -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 expr0 , doc (showString ",") , prt 0 expr , doc (showString "]")])
    EListaOdDo id expr0 expr -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 expr0 , doc (showString ":") , prt 0 expr , doc (showString "]")])
-   ELiczbaElementowListy id expr0 expr -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 expr0 , doc (showString "::") , prt 0 expr , doc (showString "]")])
+   ECalkowitaElementowListy id expr0 expr -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 expr0 , doc (showString "::") , prt 0 expr , doc (showString "]")])
    ETrzecieListy id expr0 expr -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 expr0 , doc (showString "..") , prt 0 expr , doc (showString "]")])
    EListyBez id expr0 expr -> prPrec i 11 (concatD [prt 0 id , doc (showString "[") , prt 0 expr0 , doc (showString "\\") , prt 0 expr , doc (showString "]")])
    EConst const -> prPrec i 11 (concatD [prt 0 const])

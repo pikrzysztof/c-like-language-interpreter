@@ -77,6 +77,11 @@ podaj_komorke expr = do
      throwError
        "Komorka pamieci moze dotyczyc tylko zmiennej lub tablicy/macierzy"
 
+zastosuj_operator :: Pakowalny a => (TypQCL -> TypQCL -> a) -> Expr -> Expr -> Przetwarzacz TypQCL
+zastosuj_operator op a b = do
+  x <- oblicz_wyrazenie a
+  y <- oblicz_wyrazenie b
+  return $ pak $ op x y
 
 
 oblicz_wyrazenie :: Expr -> Przetwarzacz TypQCL
@@ -94,7 +99,7 @@ oblicz_wyrazenie e = do
      return undefined
    EListaOdDo id expr0 expr1 -> do
      return undefined
-   ELiczbaElementowListy id expr0 expr1 -> do -- x[z::y]
+   ECalkowitaElementowListy id expr0 expr1 -> do -- x[z::y]
      return undefined
    ETrzecieListy id expr0 expr1 -> do      -- x[z..y]
      return undefined
@@ -104,117 +109,88 @@ oblicz_wyrazenie e = do
    EConst c -> do               -- po prostu stala
      case c of
       (CString x) -> do
-        return $ PT (Napis x)
+        return $ pak x
       (CBoolTrue) -> do
-        return $ PT (ZmiennaLogiczna True)
+        return $ pak True
       (CBoolFalse) -> do
-        return $ PT (ZmiennaLogiczna False)
+        return $ pak False
       (CJustConst x) ->
-        return $ PT (Liczba x)
+        return $ pak x
       (CConstComplexPair cc0 cc1) -> do
-        return $ PT (ZmiennaZespolona ((:+) cc0 cc1))
+        return $ pak $ (:+) cc0 cc1
    EEq expr0 expr1 -> do                       -- x == z
-     pierwsze <- oblicz_wyrazenie expr0
-     drugie <- oblicz_wyrazenie expr1
-     return $ pak $ pierwsze == drugie
+     zastosuj_operator (==) expr0 expr1
    ENeq expr0 expr1 -> do                     -- x != z
-     x <- oblicz_wyrazenie $ EEq expr0 expr1
-     return $ pak $ not $ (odpak :: TypQCL -> Bool) x
+     zastosuj_operator (/=) expr0 expr1
    ELe expr0 expr1 -> do                      -- x < y
-     x <- oblicz_wyrazenie expr0
-     y <- oblicz_wyrazenie expr1
-     return $ pak $ x < y
+     zastosuj_operator (<) expr0 expr1
    ELEq expr0 expr1 -> do                     -- x <= y
-     x <- oblicz_wyrazenie expr0
-     y <- oblicz_wyrazenie expr1
-     return $ pak $ x <= y
+     zastosuj_operator (<=) expr0 expr1
    EGr expr0 expr1 -> do                      -- x > y
-     x <- oblicz_wyrazenie expr0
-     y <- oblicz_wyrazenie expr1
-     return $ pak $ x > y
+     zastosuj_operator (>) expr0 expr1
    EGrEq expr0 expr1 -> do                    -- x >= y
-     x <- oblicz_wyrazenie expr0
-     y <- oblicz_wyrazenie expr1
-     return $ pak $ x >= y
+     zastosuj_operator (>=) expr0 expr1
    EOr expr0 expr1 -> do                      -- x or y
-     x <- oblicz_wyrazenie expr0
-     y <- oblicz_wyrazenie expr1
-     return $ pak $ odpak y || odpak x
+     zastosuj_operator (.|.) expr0 expr1
    EAnd expr0 expr1 -> do                     -- x and y
-     x <- oblicz_wyrazenie expr0
-     y <- oblicz_wyrazenie expr1
-     return $ pak $ odpak y && odpak x
+     zastosuj_operator (.&.) expr0 expr1
    EXor expr0 expr1 -> do                     -- x xor y
-     x <- oblicz_wyrazenie expr0
-     y <- oblicz_wyrazenie expr1
-     case x of
-      PT (Liczba a) -> do
-        return $ pak $ xor a (odpak y)
-      PT (ZmiennaLogiczna a) -> do
-        return $ pak $ xor a ((odpak :: TypQCL -> Bool) y)
+     zastosuj_operator xor expr0 expr1
    ENot expr -> do                          -- not y
      x <- oblicz_wyrazenie expr
-     return $ pak $ not $ odpak x
+     return $ negate x
    EAdd expr0 expr1 -> do                     -- x + y
-     x <- oblicz_wyrazenie expr0
-     y <- oblicz_wyrazenie expr1
-     case x of
-      PT (Liczba a) -> do
-        return $ pak $ a + (odpak y)
-      PT (ZmiennaZespolona a) -> do
-        return $ pak $ a + (odpak y)
+     zastosuj_operator (+) expr0 expr1
    ESubtract expr0 expr1 -> do                -- x - y
-     x <- oblicz_wyrazenie expr0
-     y <- oblicz_wyrazenie expr1
-     case x of
-      PT (Liczba a) -> do
-        return $ pak $ a - (odpak y)
-      PT (ZmiennaZespolona a) -> do
-        return $ pak $ a - (odpak y)
+     zastosuj_operator (-) expr0 expr1
    EStringConcat expr0 expr1 -> do            -- x & y
-     return undefined
+     zastosuj_operator (+) expr0 expr1
    ETimes expr0 expr1 -> do                   -- x * y
+     zastosuj_operator (*) expr0 expr1
+   ESize expr -> do                         -- #x
+     return undefined
+   EUnaryMinus expr -> do                   -- -x
+     x <- oblicz_wyrazenie expr
+     return $ negate x
+   EPow expr0 expr1 -> do                     -- x ^ y
      x <- oblicz_wyrazenie expr0
      y <- oblicz_wyrazenie expr1
-     case x of
-      PT (Liczba a) -> do
-        return $ pak $ a * (odpak y)
-      PT (ZmiennaZespolona a) -> do
-        return $ pak $ a * (odpak y)
+     case y of
+      (PT (Calkowita a)) -> do {
+        if (a >= 0 && ((odpak x) > 0)) || a > 0 then
+           (return $ (pak :: Integer -> TypQCL) $ ((odpak :: TypQCL -> Integer) x) ^ a)
+        else
+           (throwError $ "*Niedozwolone* jest potęgowanie takich liczb!");
+        }
+      (PT (Zespolona b)) -> do
+        return $ pak $ (odpak x) ** b
    EDiv expr0 expr1 -> do                     -- x / y
      x <- oblicz_wyrazenie expr0
      y <- oblicz_wyrazenie expr1
      case y of
-      PT (Liczba a) -> do
+      PT (Calkowita a) -> do {
         if a == 0 then
-           (throwError "Dzielenie przez zero!")
+           (throwError $ "Dzielenie przez zero w " ++ (show e))
         else
-           (return $ pak $ div (odpak x) a)
-      PT (ZmiennaZespolona a) -> do
+           (return $ pak $ div (odpak x) a);
+      }
+      PT (Zespolona a) -> do {
         if (magnitude a) == 0 then
-           (throwError "Dzielenie przez zero!")
+           (throwError $ "Dzielenie przez zero w " ++ (show e))
         else
-           (return $ pak $ a / (odpak y))
+           (return $ pak $ a / (odpak y));
+      }
    EMod expr0 expr1 -> do                     -- x mod y
      x <- oblicz_wyrazenie expr0
      y <- oblicz_wyrazenie expr1
      case y of
-      PT (Liczba a) -> do
+      PT (Calkowita a) -> do {
         if a == 0 then
-          (throwError "Modulo zero?")
+          (throwError $ "Modulo zero w " ++ (show e))
         else
-          (return $ pak $ mod (odpak x) a)
-   EPow expr0 expr1 -> do                     -- x ^ y
-     return undefined
-   EUnaryMinus expr -> do                   -- -x
-     x <- oblicz_wyrazenie expr
-     case x of
-      PT (Liczba a) -> do
-       return $ pak $ -1 * a
-      PT (ZmiennaZespolona a) -> do
-       return $ pak $ -1 * a
-   ESize expr -> do                         -- #x
-     return undefined
+          (return $ pak $ (odpak y) `mod` a);
+      }
+
 
 wloz_def :: Ident -> (TypQCL) -> Przetwarzacz (Sr.Srodowisko Loc)
 wloz_def id wartosc = do
@@ -246,7 +222,7 @@ oblicz_def def = do
      ile <- oblicz_wyrazenie expr
      wloz_def id ile
    VarDefDef (VarDefTable typ id expr) -> do
-     PT (Liczba ile) <- oblicz_wyrazenie expr
+     PT (Calkowita ile) <- oblicz_wyrazenie expr
      wloz_def id $ ZT (Tab { tablica = [] :: [ProstyTypQCL],
                              rozmiar = ile })
    FunDef typ id argy cialo -> do
@@ -307,10 +283,10 @@ zinterpretuj_stmt stmt = do
    WhileLoop expr blok -> do
      x <- oblicz_wyrazenie expr
      case x of
-      PT (ZmiennaLogiczna True) -> do
+      PT (Logiczna True) -> do
         zinterpretuj_blok blok
         zinterpretuj_stmt stmt
-      PT (ZmiennaLogiczna False) -> do
+      PT (Logiczna False) -> do
         return ()
       _ ->
         throwError "To nigdy nie wystapi, poniewaz expr daje wartosc logiczna"
@@ -319,9 +295,9 @@ zinterpretuj_stmt stmt = do
    ConditionalBranchElse expr blok0 blok1 -> do
      x <- oblicz_wyrazenie expr
      case x of
-      PT (ZmiennaLogiczna True) -> do
+      PT (Logiczna True) -> do
         zinterpretuj_blok blok0
-      PT (ZmiennaLogiczna False) -> do
+      PT (Logiczna False) -> do
         zinterpretuj_blok blok1
       _ -> do
         throwError "To nigdy nie wystapi, poniewaz expr daje wartosc logiczna"
@@ -359,15 +335,21 @@ zinterpretuj_stmt stmt = do
      zinterpretuj_blok blok
      zinterpretuj_stmt (WhileLoop expr blok)
    ReturnExpr expr -> do
-     return undefined
+     x <- oblicz_wyrazenie expr
+     modify $ wloz_wynik_funkcji
+     return ()
    InputExpr expr id -> do
      return undefined
    InputNoExpr id -> do
      return undefined
    Exit expr -> do
-     PT (Liczba x) <- oblicz_wyrazenie expr
-     lift $ lift $ exitWith $ (read :: String -> GHC.IO.Exception.ExitCode) (show x)
-     return ()
+     a <- oblicz_wyrazenie expr
+     case a of
+      (PT (Calkowita x)) ->
+        lift $ lift $ exitWith $ (read :: String -> GHC.IO.Exception.ExitCode) (show x)
+      (PT (Napis x)) -> do
+        lift $ lift $ putStrLn x
+        exitSuccess
    MeasureNoIdent expr -> do
      return undefined
    MeasureIdent expr id -> do
@@ -393,9 +375,13 @@ zinterpretuj_stmt stmt = do
    SetExpr op expr -> do
      return undefined
    Semicolon -> do
-     return ()
+     return
 
 -- instrukcje to tak jakby wskazowki
 zinterpretuj_blok :: Block -> Przetwarzacz ()
-zinterpretuj_blok (JustBlock wskazowki) = do
-  mapM_ zinterpretuj_stmt wskazowki
+zinterpretuj_blok (JustBlock (ret@(ReturnExpr e):wskazowki)) = do
+  zinterpretuj_stmt ret
+
+zinterpretuj_blok (JustBlock (wsk:wskazowki)) = do
+  zinterpretuj_stmt wsk
+  zinterpretuj_blok (JustBlock wskazowki)

@@ -35,7 +35,7 @@ transExpr x = case x of
   ETableElement id expr  -> failure x
   EMatrixElement id expr1 expr2  -> failure x
   EListaOdDo id expr1 expr2  -> failure x
-  ELiczbaElementowListy id expr1 expr2  -> failure x
+  ECalkowitaElementowListy id expr1 expr2  -> failure x
   ETrzecieListy id expr1 expr2  -> failure x
   EListyBez id expr1 expr2  -> failure x
   EConst const  -> failure x

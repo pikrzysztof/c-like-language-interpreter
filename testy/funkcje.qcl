@@ -1,0 +1,5 @@
+boolean f(int a, int b) {
+       return a < b;
+}
+
+print f(3, 8), " powinno byc true", " a z kolei false bedzie ", f(8, 3), "\n";

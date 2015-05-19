@@ -25,6 +25,9 @@ do_typu_prostego (A.SimpleType x) =
    A.TBoolean -> Logiczna
    A.TInt -> Calkowita
    A.TComplex -> Zespolona
+   _ -> undefined
+
+do_typu_prostego _ = undefined
 
 do_typu_prostego_z_ST :: A.ST -> ProstyTypQCL
 do_typu_prostego_z_ST x = do_typu_prostego (A.SimpleType x)

@@ -16,3 +16,7 @@ zmien_srodowisko i l s = Srod { srod = Map.union (Map.fromList $ zip i l)
 
 daj_lokacje :: Ident -> Srodowisko a -> Maybe a
 daj_lokacje ident s = Map.lookup ident (srod s)
+
+wytnij_wszystkie_wartosci :: (a -> Bool) -> Srodowisko a -> Srodowisko a
+wytnij_wszystkie_wartosci fn srodow = Srod { srod = Map.filter fn (srod srodow)
+                                           }

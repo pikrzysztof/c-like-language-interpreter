@@ -19,9 +19,9 @@ stanZero = Stan {
                 }
 
 data Podprogram = Podpr { arg_ident :: [Ident],
-                       srod :: Sr.Srodowisko Loc,
-                       cialo :: Body
-                     } deriving(Show, Ord, Eq)
+                          srod :: Sr.Srodowisko Loc,
+                          cialo :: Body
+                        } deriving(Show, Ord, Eq)
 
 zajmij_wolne_lok :: [Loc] -> Stan -> Stan
 zajmij_wolne_lok lokacje st = Stan { stan = stan st,
@@ -64,10 +64,10 @@ daj_wynik_funkcji :: Stan -> TypQCL
 daj_wynik_funkcji = wynik_funkcji
 
 usun_wynik_funkcji :: Stan -> Stan
-usun_wynik_funkcji s = Stan {stan = stan s,
-                             podprogramy = podprogramy s,
-                             wolna_lokacja = wolna_lokacja s,
-                             wynik_funkcji = PT Nic
+usun_wynik_funkcji s = Stan { stan = stan s,
+                              podprogramy = podprogramy s,
+                              wolna_lokacja = wolna_lokacja s,
+                              wynik_funkcji = PT Nic
                             }
 
 wloz_wynik_funkcji :: TypQCL -> Stan -> Stan

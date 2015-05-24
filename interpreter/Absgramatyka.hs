@@ -155,9 +155,3 @@ data Def =
 data Block =
    JustBlock [Stmt]
   deriving (Eq,Ord,Show,Read)
-
-odpakuj_ConstOrVar :: ConstOrVar -> Def
-odpakuj_ConstOrVar x =
-  case x of
-   ConstDefListItem cd -> DefConstDef cd
-   VarDefListItem vd -> VarDefDef vd

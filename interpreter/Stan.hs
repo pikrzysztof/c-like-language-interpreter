@@ -79,3 +79,17 @@ wloz_wynik_funkcji wyn st = Stan { stan = stan st,
 
 daj_podprogram :: Loc -> Stan -> Maybe Podprogram
 daj_podprogram l s = Map.lookup l (podprogramy s)
+
+usun_lokacje :: [Loc] -> Stan -> Stan
+usun_lokacje lokacje st = Stan { stan = Prelude.foldl
+                                        (flip Map.delete)
+                                        (stan st)
+                                        lokacje,
+                                 wolna_lokacja = wolna_lokacja st,
+                                 -- ponizsza linijka zazwyczaj nic nie robi
+                                 podprogramy = Prelude.foldl
+                                               (flip Map.delete)
+                                               (podprogramy st)
+                                               lokacje,
+                             wynik_funkcji = wynik_funkcji st
+                           }

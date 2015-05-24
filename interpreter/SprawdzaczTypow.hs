@@ -63,15 +63,15 @@ przetraw_definicje def = do
        -- lista (Typ, identyfikator)
        lista_param = [(do_typu typ_param, identyf)
                      | (JustArgDef typ_param identyf) <- argumenty]
+       fn = (ident, (Podpr $ Fn (do_typu typ) (map fst lista_param)))
        -- Srodowisko
        srod_po_funkcji = Sr.zmien_srodowisko
-                         [ident]
-                         [((Podpr $ Fn (do_typu typ)
-                           (map fst lista_param)), False)]
+                         [fst fn]
+                         [(snd fn, False)]
                          srod
        srod_funkcji = Sr.zmien_srodowisko
-                      (map snd lista_param)
-                      [(param, False) | (param, _) <- lista_param]
+                      ((map snd lista_param) ++ [fst fn])
+                      ([(param, False) | (param, _) <- lista_param] ++ [(snd fn, True)])
                       srod_bez_zmiennych
        in do
           _ <- local (const srod_funkcji) (sprawdz_funkcje (do_typu typ) cialo)
@@ -155,14 +155,16 @@ sprawdz_typ_expr e = do
       CBoolFalse -> return (Dane $ PT Logiczna, True)
       CString _ -> return (Dane $ PT Napis, True)
    EFCall ident argumenty -> do
+     x <- ask
      arg <- mapM sprawdz_typ_expr argumenty
      fn_ident <- asks (Sr.daj_lokacje ident)
+     lift $ lift $ putStrLn (show x)
      case fn_ident of
       Just (Podpr (Fn a b), _) -> do {
         if (map fst arg) == b then
           (return (a, True))
         else
-          (throwError $ "Nie zgadza się typ argumentu w wyrażeniu " ++ (show e));
+          (throwError $ "Nie zgadza się typ argumentu w wyrażeniu " ++ (show e) ++ " to jest " ++ (show fn_ident));
         }
       _ -> throwError $
            "Nieprawidłowy identyfikator wołanej funkcji w wyrażeniu " ++

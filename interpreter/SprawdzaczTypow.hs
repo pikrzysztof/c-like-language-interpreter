@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 module SprawdzaczTypow (sprawdz_typy) where
 import System.Exit ( exitFailure )
 import Control.Monad.Except
@@ -71,12 +72,31 @@ przetraw_definicje def = do
                          srod
        srod_funkcji = Sr.zmien_srodowisko
                       ((map snd lista_param) ++ [fst fn])
-                      ([(param, False) | (param, _) <- lista_param] ++ [(snd fn, True)])
+                      ([(param, False) | (param, _) <- lista_param] ++
+                       [(snd fn, True)])
                       srod_bez_zmiennych
        in do
           _ <- local (const srod_funkcji) (sprawdz_funkcje (do_typu typ) cialo)
           return srod_po_funkcji
+   ProcDef ident argumenty cialo -> do
+     srod <- ask
+     let
+       lista_param = [(do_typu typ_param, identyf)
+                     | (JustArgDef typ_param identyf) <- argumenty]
+       fn = (ident, (Podpr $ Proc $ map fst lista_param))
+       srod_po_procedurze = Sr.zmien_srodowisko
+                            [fst fn]
+                            [(snd fn, True)]
+                            srod
+       srod_procedury = Sr.zmien_srodowisko
+                        (map snd lista_param)
+                        ([(param, False) | (param, _) <- lista_param])
+                        srod_po_procedurze
+       in do
+       _ <- local (const srod_procedury) (sprawdz_procedure cialo)
+       return srod_po_procedurze
    _ -> undefined
+
 
 sprawdz_typ_stmt :: Stmt -> Sprawdzacz (TypQCL, Bool)
 sprawdz_typ_stmt stmt = do
@@ -164,7 +184,15 @@ sprawdz_typ_expr e = do
         if (map fst arg) == b then
           (return (a, True))
         else
-          (throwError $ "Nie zgadza się typ argumentu w wyrażeniu " ++ (show e) ++ " to jest " ++ (show fn_ident));
+          (throwError $ "Nie zgadza się typ argumentu w wyrażeniu " ++
+           (show e) ++ " to jest " ++ (show fn_ident));
+        }
+      Just (Podpr (Proc a), _) -> do {
+        if (map fst arg) == a then
+          (return (Dane $ PT Nic, True))
+        else
+          (throwError $ "Nie zgadza sie typ argumentow podawanych do procedury"
+          ++ (show fn_ident));
         }
       _ -> throwError $
            "Nieprawidłowy identyfikator wołanej funkcji w wyrażeniu " ++
@@ -314,15 +342,16 @@ ma_return (stmt:stmty) =
 
 sprawdz_funkcje :: TypQCL -> Body -> Sprawdzacz ()
 sprawdz_funkcje ret_typ (JustBody definicje stmt) = do {
-  if (any not (map mozna_wolac_z_funkcji stmt)) ||
+  if (any not (map mozna_wolac_z_funkcji (splaszcz stmt))) ||
      (any not (map mozna_definiowac_z_funkcji definicje)) then
     (throwError $ "Nie robić w funkcji rzeczy, które bazują na stanie programu"
     ++ " bądź go zmieniają.")
   else if (not $ ma_return stmt) then
       (throwError "Nie jest zapewniony return w funkcji.")
     else do {
-      srod_ostateczne <- lancuch_reader przetraw_definicje
-                       (map odpakuj_ConstOrVar definicje);
+      srod_ostateczne <- lancuch_reader
+                         przetraw_definicje
+                         (map odpakuj_ConstOrVar definicje);
       local (const srod_ostateczne)
       (mapM_ (sprawdz_typ_stmt_funkcji ret_typ) stmt);
       }
@@ -355,9 +384,59 @@ sprawdz_typ_stmt_funkcji typ stmt = do {
       _ <- sprawdz_typ_stmt (ConditionalBranch e (JustBlock []))
       mapM_ spr b
     ConditionalBranchElse e (JustBlock b0) (JustBlock b1) -> do
-      _ <- sprawdz_typ_stmt (ConditionalBranchElse e (JustBlock []) (JustBlock []))
+      _ <- sprawdz_typ_stmt (ConditionalBranchElse e (JustBlock [])
+                             (JustBlock []))
       mapM_ spr (b0 ++ b1)
     jak_nie -> do
       _ <- sprawdz_typ_stmt jak_nie
       return ()
-  } `catchError` (obsluz_wyjatek . (const $ "Nie zgadza sie typ w " ++ (show stmt)))
+  } `catchError` (obsluz_wyjatek . (const $ "Nie zgadza sie typ w " ++
+                                    (show stmt)))
+
+mozna_wolac_z_procedury :: Stmt -> Bool
+mozna_wolac_z_procedury stmt =
+  case stmt of
+   ReturnExpr _e -> False
+   _ -> True
+
+sprawdz_procedure :: Body -> Sprawdzacz ()
+sprawdz_procedure (JustBody defy stmty) = do {
+  if (any not (map mozna_wolac_z_procedury (splaszcz stmty))) then
+    (throwError $ "Procedury nie mogą mieć returna!")
+  else do {
+    srod_ostateczne <- lancuch_reader
+                       przetraw_definicje
+                       (map odpakuj_ConstOrVar defy);
+    local (const srod_ostateczne) (mapM_ sprawdz_typ_stmt stmty);
+    return ();
+    }
+  }
+
+
+
+class Splaszczalny a where
+  splaszcz :: a -> [Stmt]
+
+  -- FlexibleInstances
+instance Splaszczalny [Stmt] where
+  splaszcz = concatMap splaszcz
+
+instance Splaszczalny Stmt where
+  splaszcz stmt =
+    case stmt of
+     ForStepLoop _id _e0 _e1 _e2 b -> splaszcz b
+     ForLoop _id _e0 _e1 b -> splaszcz b
+     WhileLoop _e0 b -> splaszcz b
+     UntilLoop b _e0 -> splaszcz b
+     ConditionalBranch _e0 b -> splaszcz b
+     ConditionalBranchElse _e0 b0 b1 -> (splaszcz b0) ++ (splaszcz b1)
+     cos_innego -> [cos_innego]
+
+instance Splaszczalny Block where
+  splaszcz (JustBlock stmty) = concatMap splaszcz stmty
+
+instance Splaszczalny Program where
+  splaszcz (QCLProgram _defy stmty) = concatMap splaszcz stmty
+
+instance Splaszczalny Body where
+  splaszcz (JustBody _defy stmty) = concatMap splaszcz stmty

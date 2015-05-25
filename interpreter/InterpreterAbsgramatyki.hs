@@ -354,7 +354,7 @@ oblicz_def def = do
                      St.cialo = cialo_fun})
        return srod'
    ProcDef ident argy cialo -> do
-     return undefined
+     oblicz_def (FunDef undefined ident argy cialo)
    OperatorDef ident argy cialo -> do
      return undefined
    QufunctOperatorDef ident argy cialo -> do

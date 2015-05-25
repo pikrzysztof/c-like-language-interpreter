@@ -9,6 +9,7 @@ data ProstyTypQCL = Napis
                   | Calkowita
                   | Logiczna
                   | Zespolona
+                  | Nic
                   deriving (Eq, Ord, Read, Show)
 
 data ZlozonyTypQCL a = Tablica a

@@ -53,7 +53,7 @@ oblicz_wyrazenie e = do
        (zinterpretuj_podprogram $ St.cialo fn)
      wyn <- gets St.daj_wynik_funkcji
      modify St.usun_wynik_funkcji
-     modify $ St.usun_lokacje wolne_lok
+     modify $ St.usun_lokacje_i_nowsze wolne_lok
      return wyn
    ETableElement ident expr -> do
      lift $ lift $ putStrLn ("nie zaimplementowano " ++ (show e))

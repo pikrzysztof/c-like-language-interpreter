@@ -6,6 +6,7 @@ import Data.Complex
 import Data.Bits
 import Control.Monad.RWS
 import Control.Monad.Except
+import QuantumVector
 type Loc = Integer
 
 type PrzetwarzaczOgolny env st a = ExceptT String (RWST env () st IO) a

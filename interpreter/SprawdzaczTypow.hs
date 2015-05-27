@@ -175,10 +175,8 @@ sprawdz_typ_expr e = do
       CBoolFalse -> return (Dane $ PT Logiczna, True)
       CString _ -> return (Dane $ PT Napis, True)
    EFCall ident argumenty -> do
-     x <- ask
      arg <- mapM sprawdz_typ_expr argumenty
      fn_ident <- asks (Sr.daj_lokacje ident)
-     lift $ lift $ putStrLn (show x)
      case fn_ident of
       Just (Podpr (Fn a b), _) -> do {
         if (map fst arg) == b then

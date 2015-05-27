@@ -1,0 +1,25 @@
+
+int fib(int a) {
+    if (a <= 0) {
+       return 0;
+    }
+    if (a == 1) {
+       return 1;
+    }
+    return fib(a - 1) + fib(a-2);
+    return 100;
+}
+
+procedure wypisz_fibonaccie(int ile) {
+    if ile > 0 {
+       wypisz_fibonaccie(ile - 1);
+    }
+    print "fib(", ile, ")=", fib(ile), "\n";
+}
+
+wypisz_fibonaccie(5);
+// int i;
+
+// for i = 0 to 10 {
+//     print "fib(", i, ")=", fib(i), "\n";
+// }

@@ -7,7 +7,7 @@ import System.Random
 
 
 data StanMaszyny = SM { losowe :: [Double],
-                        kubity :: [(Double, Double)]
+                        kubity :: [Ket Integer]
                       } deriving (Ord, Eq)
 
 data Stan = Stan { stan_klasyczny :: Map Loc TypQCL,
@@ -86,7 +86,9 @@ usun_lokacje_i_nowsze (l:_) st = st { stan_klasyczny =
                                          fst $ Map.split l $ stan_klasyczny st,
                                       podprogramy =
                                         fst $ Map.split l $ podprogramy st
-                                      }
+                                    }
+
+
 
 instance Show StanMaszyny where
   show sm = "SM { losowe = "

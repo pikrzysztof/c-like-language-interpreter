@@ -1,20 +1,28 @@
+{-# LANGUAGE ExistentialQuantification #-}
 module Stan where
 import qualified Srodowisko as Sr
 import Typy
 import Absgramatyka
 import Data.Map as Map
+import QuantumVector as QV
 import System.Random
 
+liczba_kubitow :: Integer
+liczba_kubitow = 4
+ziarno :: Int
+ziarno = 9
 
-data StanMaszyny = SM { losowe :: [Double],
-                        kubity :: [Ket Integer]
-                      } deriving (Ord, Eq)
+class (Ord a, Eq a, Show a) => Tensorowy a
+data DlaKeta = forall a. Tensorowy a => DlaKeta a
+  deriving (Show)
 
 data Stan = Stan { stan_klasyczny :: Map Loc TypQCL,
                    podprogramy :: Map Loc Podprogram,
                    wolna_lokacja :: Loc,
                    wynik_funkcji :: TypQCL,
-                   stan_kwantowy :: StanMaszyny
+                   stan_maszyny :: DlaKeta,
+                   zajetych_kubitow :: Integer,
+                   losowe :: [Double]
                  } deriving (Show)
 
 stanZero :: Stan
@@ -23,10 +31,10 @@ stanZero = Stan {
                   wolna_lokacja = 0,
                   podprogramy = Map.empty,
                   wynik_funkcji = PT Nic,
-                  stan_kwantowy = SM {
-                    losowe = randomRs (0 :: Double, 1 :: Double) (mkStdGen 9),
-                    kubity = []
-                    }
+                  stan_maszyny = (Ket 0),
+                  losowe = randomRs (0 :: Double, 1 :: Double)
+                           (mkStdGen ziarno),
+                  zajetych_kubitow = 0
                 }
 
 data Podprogram = Podpr { arg_ident :: [Ident],
@@ -88,11 +96,16 @@ usun_lokacje_i_nowsze (l:_) st = st { stan_klasyczny =
                                         fst $ Map.split l $ podprogramy st
                                     }
 
+wypisz_stan :: Stan -> String
+wypisz_stan s = show $ s { losowe = [head $ losowe s] }
 
+zresetuj_maszyne_kwantowa :: Stan -> Stan
+zresetuj_maszyne_kwantowa s = s { stan_maszyny = Ket 0,
+                                  zajetych_kubitow = 0
+                                }
 
-instance Show StanMaszyny where
-  show sm = "SM { losowe = "
-            ++ (show $ head $ losowe sm)
-            ++ " kubity = "
-            ++ (show $ kubity sm)
-            ++ "}"
+zaalokuj_bit :: Stan -> Stan
+zaalokuj_bit s = s { stan_maszyny = Ket 0 QV.*> stan_maszyny s,
+                     zajetych_kubitow = 1 + zajetych_kubitow s
+
+                   }

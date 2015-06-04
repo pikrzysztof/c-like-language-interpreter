@@ -8,6 +8,7 @@ import QuantumVector
 
 type QKet = Ket Integer
 type QBra = Bra Integer
+type Macierz = [[Scalar]]
 
 class Rzutowalny a where
   rzutuj :: Integer -> a -> Complex Double
@@ -19,7 +20,7 @@ instance Rzutowalny QBra where
   rzutuj wsp = (flip (<>)) (Ket wsp)
 
 -- pierwszy argument to jaki ma byc rozmiar operatora.
-zrob_operator :: Integer -> Ket Integer -> Bra Integer -> [[Scalar]]
+zrob_operator :: Integer -> QKet -> QBra -> Macierz
 zrob_operator rozmiar ket bra =
   [
     [ (rzutuj wspolrzedna_ket ket) * (rzutuj wspolrzedna_bra bra) |
@@ -27,20 +28,26 @@ zrob_operator rozmiar ket bra =
   | wspolrzedna_bra <- [0 .. rozmiar - 1]
   ]
 
+-- konstruktory liczb zespolonych
+i :: Double -> Scalar
+i = (:+) 0
+r :: Double -> Scalar
+r = (flip (:+)) 0
 
--- ket *><* bra = undefined
-  -- operator [Ket (0 :: Integer), Ket (1 :: Integer)]
+    -- bp od Bramek Pauliego
+x_bp :: Macierz
+x_bp = [[r 0, r 1], [r 1, r 0]]
+y_bp :: Macierz
+y_bp = [[r 0, i 1], [i (-1), r 0]]
+z_bp :: Macierz
+z_bp = [[r 1, r 0], [r 0, r (-1)]]
 
--- (*><*) :: Ket Integer -> Bra Integer -> [Ket Integer]
--- ket *><* bra =
---   [(x1 :|> Ket 0) +> (y1 :|> Ket 1),
---    (x2 :|> Ket 0) +> (y2 :|> Ket 1)] where
---   x1 = ((Bra (0 :: Integer)) <> ket) * (bra <> (Ket (0 :: Integer)))
---   y1 = ((Bra (1 :: Integer)) <> ket) * (bra <> (Ket (0 :: Integer)))
---   x2 = ((Bra (0 :: Integer)) <> ket) * (bra <> (Ket (1 :: Integer)))
---   y2 = ((Bra (1 :: Integer)) <> ket) * (bra <> (Ket (1 :: Integer)))
+-- bramka hadamarda
+h :: Macierz
+h = map (map $ (*) $ sqrt 1 / 2 ) [[r 1, r 1], [r 1, r (-1)]]
 
--- funkcja_z_macierzy :: [Ket Integer] -> Ket Integer -> Ket Integer
--- funkcja_z_macierzy [k1, k2] ket = (x :|> Ket 0) +> (y :| Ket 1) where
---   x =
---   y =
+-- bramka fazowa
+s = map (map sqrt) z_bp
+
+-- bramka pi/8
+t = map (map sqrt) s

@@ -264,8 +264,7 @@ zinterpretuj_stmt stmt = do
      lift $ lift $ putStrLn ("nie mozna wykonac " ++ (show stmt))
      return undefined
    Reset -> do
-     lift $ lift $ putStrLn ("nie mozna wykonac " ++ (show stmt))
-     return undefined
+     modify St.zresetuj_maszyne_kwantowa
    List [] -> return undefined
    List (ident:identy) -> do
      Just lokac <- asks $ Sr.daj_lokacje ident
